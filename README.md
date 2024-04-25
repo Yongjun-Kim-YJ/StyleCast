@@ -8,3 +8,11 @@ https://console.firebase.google.com/u/0/project/stylecast-ad37e/authentication/p
 
 # Generate android debug.keystore
 keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000
+
+# Firebase_core setup
+flutter pub add firebase_core
+flutter pub get
+
+# Firebase_auth setup
+flutter pub add firebase_auth
+flutter pub get
