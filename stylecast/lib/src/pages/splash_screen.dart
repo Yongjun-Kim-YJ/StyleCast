@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stylecast/src/pages/login.dart';
 
 class SplashScreen extends StatefulWidget {
   final Widget nextPage;
@@ -20,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(Duration(seconds: 2)); // 1초 대기
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => widget.nextPage), // 다음 페이지로 이동
+      MaterialPageRoute(builder: (context) => LoginScreen()), // 다음 페이지로 이동
     );
   }
 
