@@ -1,115 +1,5 @@
-// import 'package:flutter/material.dart';
-// import 'package:stylecast/src/pages/weather_service.dart';
-
-// class HomePage extends StatefulWidget {
-//   @override
-//   _HomePageState createState() => _HomePageState();
-// }
-
-// class _HomePageState extends State<HomePage> {
-//   final WeatherService _weatherService = WeatherService();
-//   String temperature = '';
-//   String weatherDescription = 'Loading...';
-//   String weatherIcon = '';
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _loadWeather();
-//   }
-
-//   Future<void> _loadWeather() async {
-//     try {
-//       var weatherData = await _weatherService.getWeather("San Jose");
-//       setState(() {
-//         temperature = '${weatherData['main']['temp']}°C';
-//         weatherDescription =
-//             weatherData['weather'][0]['description'].toString();
-//         weatherIcon = _mapWeatherConditionToIcon(
-//             weatherData['weather'][0]['main'].toString());
-//       });
-//     } catch (e) {
-//       setState(() {
-//         weatherDescription = "Failed to load weather data";
-//       });
-//     }
-//   }
-
-//   String _mapWeatherConditionToIcon(String condition) {
-//     switch (condition) {
-//       case 'Clear':
-//         return '☀'; // Sunny
-//       case 'Clouds':
-//         return '☁'; // Cloudy
-//       case 'Rain':
-//         return '🌧'; // Rainy
-//       case 'Snow':
-//         return '❄'; // Snowy
-//       default:
-//         return '🌈'; // Default to something cheerful
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       appBar: AppBar(
-//         backgroundColor: Colors.white,
-//         elevation: 0,
-//         leading: IconButton(
-//           icon: Icon(Icons.menu, color: Colors.black),
-//           onPressed: () {},
-//         ),
-//         actions: [
-//           IconButton(
-//             icon: Icon(Icons.sync, color: Colors.black),
-//             onPressed: _loadWeather,
-//           )
-//         ],
-//         title: Text('San Jose, CA', style: TextStyle(color: Colors.black)),
-//       ),
-//       body: SingleChildScrollView(
-//         child: Column(
-//           children: [
-//             Padding(
-//               padding: EdgeInsets.all(20),
-//               child: Column(
-//                 children: [
-//                   Text(weatherIcon, style: TextStyle(fontSize: 64)),
-//                   SizedBox(height: 10),
-//                   Text(temperature,
-//                       style:
-//                           TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
-//                   Text(weatherDescription, style: TextStyle(fontSize: 20)),
-//                 ],
-//               ),
-//             ),
-//             // _buildStylecastCard(),
-//             // _buildHourlyForecast(),
-//             // _buildWeeklyForecast(),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-// //Come back to these three methods
-//   // Widget _buildStylecastCard() {
-//   //   // Implement this method based on your specific UI requirements
-//   // }
-
-//   // Widget _buildHourlyForecast() {
-//   //   // Implement this method based on your specific UI requirements
-//   // }
-
-//   // Widget _buildWeeklyForecast() {
-//   //   // Implement this method based on your specific UI requirements
-//   // }
-// }
-
 import 'package:flutter/material.dart';
-import 'package:stylecast/src/pages/weather_service.dart';
+import 'weather_service.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -118,230 +8,202 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final WeatherService _weatherService = WeatherService();
-  String temperature = '';
-  String weatherDescription = 'Loading...';
-  String weatherIcon = '';
+  String _city = 'San Jose';
+  Map<String, dynamic>? _weatherData;
+  Map<String, dynamic>? _forecastData;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadWeather();
+    _fetchWeatherData();
   }
 
-  Future<void> _loadWeather() async {
+  Future<void> _fetchWeatherData() async {
     try {
-      var weatherData = await _weatherService.getWeather("San Jose");
+      final weatherData = await _weatherService.getWeather(_city);
+      final forecastData = await _weatherService.getForecast(_city);
       setState(() {
-        temperature = '${weatherData['main']['temp']}°C';
-        weatherDescription =
-            weatherData['weather'][0]['description'].toString();
-        weatherIcon = _mapWeatherConditionToIcon(
-            weatherData['weather'][0]['main'].toString());
+        _weatherData = weatherData;
+        _forecastData = forecastData;
+        _isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        weatherDescription = "Failed to load weather data";
-      });
+      print(e);
     }
   }
 
-  String _mapWeatherConditionToIcon(String condition) {
-    switch (condition) {
-      case 'Clear':
-        return '☀'; // Sunny
-      case 'Clouds':
-        return '☁'; // Cloudy
-      case 'Rain':
-        return '🌧'; // Rainy
-      case 'Snow':
-        return '❄'; // Snowy
-      default:
-        return '🌈'; // Default to something cheerful
-    }
+  String _getWeatherIconUrl(String iconCode) {
+    return 'https://openweathermap.org/img/wn/$iconCode@2x.png';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.black),
-          onPressed: () {},
-        ),
+        leading: Icon(Icons.menu),
+        title: Text(_city),
         actions: [
           IconButton(
-            icon: Icon(Icons.sync, color: Colors.black),
-            onPressed: _loadWeather,
-          )
+            icon: Icon(Icons.refresh),
+            onPressed: _fetchWeatherData,
+          ),
         ],
-        title: Text('San Jose, CA', style: TextStyle(color: Colors.black)),
       ),
-      body: SingleChildScrollView(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _buildWeatherContent(),
+    );
+  }
+
+  Widget _buildWeatherContent() {
+    if (_weatherData == null || _forecastData == null) {
+      return Center(child: Text('Error loading weather data'));
+    }
+
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Use Row and wrap in Padding for slight left shift
             Padding(
-              padding: EdgeInsets.all(20),
-              child: Column(
+              padding: const EdgeInsets.only(
+                  right: 30.0), // Adjust this for slight left shift
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(weatherIcon, style: TextStyle(fontSize: 64)),
-                  SizedBox(height: 10),
-                  Text(temperature,
-                      style:
-                          TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
-                  Text(weatherDescription, style: TextStyle(fontSize: 20)),
+                  Image.network(
+                    _getWeatherIconUrl(_weatherData!['weather'][0]['icon']),
+                    width: 120,
+                    height: 120,
+                  ),
+                  Text(
+                    '${_weatherData!['main']['temp'].toStringAsFixed(0)}°F',
+                    style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ),
-            _buildStylecastCard(),
-            _buildHourlyForecast(),
+            // Centered description
+            Text(
+              _weatherData!['weather'][0]['description'].toUpperCase(),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24),
+            _buildTodayForecast(),
+            SizedBox(height: 24),
             _buildWeeklyForecast(),
-            _buildDetailedWeatherInfo(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStylecastCard() {
-    // Sample data for clothing recommendation
-    final clothingItems = [
-      {'icon': Icons.card_giftcard, 'label': 'Cardigan'},
-      {'icon': Icons.card_membership, 'label': 'T-Shirt'},
-      {'icon': Icons.card_travel, 'label': 'Jeans'}
-    ];
+  Widget _buildTodayForecast() {
+    final today = _forecastData!['list'][0];
+    final currentTemp = today['main']['temp'].toStringAsFixed(0);
+    final maxTemp = today['main']['temp_max'].toStringAsFixed(0);
+    final minTemp = today['main']['temp_min'].toStringAsFixed(0);
 
-    return Card(
-      margin: EdgeInsets.all(15),
-      child: Padding(
-        padding: EdgeInsets.all(15),
-        child: Column(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Today: $currentTemp°F ~ $maxTemp°F',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Stylecast', style: TextStyle(fontSize: 24)),
-            Text('Today: 74°F ~ 83°F', style: TextStyle(fontSize: 16)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: clothingItems.map((item) {
-                return Column(
-                  children: [
-                    Icon(item['icon'] as IconData?, size: 32),
-                    Text('label', style: TextStyle(fontSize: 16)),
-                  ],
-                );
-              }).toList(),
-            ),
+            _buildOutfitIcon('assets/images/cardigan.png'),
+            SizedBox(width: 16),
+            _buildOutfitIcon('assets/images/tshirt.png'),
+            SizedBox(width: 16),
+            _buildOutfitIcon('assets/images/jeans.png'),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHourlyForecast() {
-    // Sample data for hourly forecast
-    final hours = ['Now', '1 PM', '2 PM', '3 PM', '4 PM'];
-    final temps = ['74°F', '78°F', '83°F', '82°F', '79°F'];
-    final icons = ['☁', '☀', '☀', '☀', '☀'];
-
-    return Card(
-      margin: EdgeInsets.all(15),
-      child: Padding(
-        padding: EdgeInsets.all(15),
-        child: Column(
-          children: [
-            Text('Today', style: TextStyle(fontSize: 24)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(hours.length, (index) {
-                return Column(
-                  children: [
-                    Text(icons[index], style: TextStyle(fontSize: 32)),
-                    Text(temps[index], style: TextStyle(fontSize: 16)),
-                    Text(hours[index], style: TextStyle(fontSize: 16)),
-                  ],
-                );
-              }),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 
   Widget _buildWeeklyForecast() {
-    // Sample data for weekly forecast
-    final days = ['Today', 'Tomorrow', 'Wednesday', 'Thursday'];
-    final minTemps = ['68°F', '68°F', '76°F', '78°F'];
-    final maxTemps = ['83°F', '76°F', '86°F', '90°F'];
-    final icons = ['☁', '🌧', '☀', '☀'];
+    final forecast = _forecastData!['list'];
 
-    return Card(
-      margin: EdgeInsets.all(15),
-      child: Padding(
-        padding: EdgeInsets.all(15),
-        child: Column(
-          children: [
-            Text('Weekly', style: TextStyle(fontSize: 24)),
-            Column(
-              children: List.generate(days.length, (index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(days[index], style: TextStyle(fontSize: 16)),
-                      Row(
-                        children: [
-                          Text(icons[index], style: TextStyle(fontSize: 16)),
-                          SizedBox(width: 10),
-                          Text('${minTemps[index]} - ${maxTemps[index]}',
-                              style: TextStyle(fontSize: 16)),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Weekly',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-      ),
-    );
-  }
+        SizedBox(height: 8),
+        ...forecast.asMap().entries.map((entry) {
+          final index = entry.key;
+          final data = entry.value;
+          if (index % 8 == 0) {
+            final date = DateTime.fromMillisecondsSinceEpoch(data['dt'] * 1000);
+            final dayOfWeek = _getDayOfWeek(date.weekday);
+            final maxTemp = data['main']['temp_max'].toStringAsFixed(0);
+            final minTemp = data['main']['temp_min'].toStringAsFixed(0);
 
-  Widget _buildDetailedWeatherInfo() {
-    // Sample data for detailed weather info
-    final info = {
-      'Min. Temperature': '10°F',
-      'Max. Temperature': '18°F',
-      'Winds': '6 mph',
-      'Precipitation': '14%',
-      'Humidity': '68%',
-      'Sunrise': '6:13 AM',
-      'Sunset': '7:56 PM',
-    };
-
-    return Card(
-      margin: EdgeInsets.all(15),
-      child: Padding(
-        padding: EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: info.entries.map((entry) {
             return Padding(
-              padding: EdgeInsets.symmetric(vertical: 5),
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(entry.key, style: TextStyle(fontSize: 16)),
-                  Text(entry.value, style: TextStyle(fontSize: 16)),
+                  Text(dayOfWeek),
+                  Row(
+                    children: [
+                      Image.network(
+                        _getWeatherIconUrl(data['weather'][0]['icon']),
+                        width: 32,
+                        height: 32,
+                      ),
+                      SizedBox(width: 8),
+                      Text('$minTemp° ~ $maxTemp°'),
+                    ],
+                  ),
                 ],
               ),
             );
-          }).toList(),
-        ),
-      ),
+          }
+          return SizedBox.shrink();
+        }).toList(),
+      ],
     );
+  }
+
+  Widget _buildOutfitIcon(String assetPath) {
+    return Image.asset(
+      assetPath,
+      width: 48,
+      height: 48,
+      color: Colors.grey,
+    );
+  }
+
+  String _getDayOfWeek(int dayOfWeek) {
+    switch (dayOfWeek) {
+      case 1:
+        return 'Monday';
+      case 2:
+        return 'Tuesday';
+      case 3:
+        return 'Wednesday';
+      case 4:
+        return 'Thursday';
+      case 5:
+        return 'Friday';
+      case 6:
+        return 'Saturday';
+      case 7:
+        return 'Sunday';
+      default:
+        return '';
+    }
   }
 }
