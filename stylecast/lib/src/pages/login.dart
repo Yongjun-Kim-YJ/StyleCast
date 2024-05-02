@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:stylecast/src/pages/home.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -22,10 +23,16 @@ class _LoginScreenState extends State<LoginScreen> {
           idToken: googleAuth.idToken,
         );
         await _auth.signInWithCredential(credential);
-        // 로그인 성공 후 처리
+        // 로그인 성공 후 HomePage로 이동
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
       }
     } catch (e) {
       // 에러 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed. Please try again.')),
+      );
     }
   }
 
