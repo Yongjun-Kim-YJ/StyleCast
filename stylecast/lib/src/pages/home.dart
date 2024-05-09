@@ -10,9 +10,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final WeatherService _weatherService = WeatherService();
-  String _city = 'San Jose';  // Example city, adjust as necessary
-  Map<String, dynamic>? _weatherData;
-  Map<String, dynamic>? _hourlyForecastData;  // To store hourly data
+
+  double latitude = 37.3382;
+  double longtitude = -121.8863;
+  Map<String, dynamic>? _currentWeatherData;
   bool _isLoading = true;
 
   @override
@@ -22,17 +23,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _fetchWeatherData() async {
-  try {
-    final weatherData = await _weatherService.getWeather(_city);
-    final forecastData = await _weatherService.getFiveDayForecast(_city);
-    setState(() {
-      _weatherData = weatherData;
-      _hourlyForecastData = forecastData;  // Adjust this line based on actual data structure
-      _isLoading = false;
-    });
-  } catch (e) {
-    print(e);
-  }
+    try {
+      final currentWeatherData = await _weatherService.getCurrentWeather(latitude, longtitude);
+      // Using hardcoded coordinates for San Jose, adjust as necessary
+      setState(() {
+        _currentWeatherData = currentWeatherData;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+    }
 }
 
 
@@ -42,8 +42,8 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         leading: Icon(Icons.menu),
         title: Text(
-          _weatherData != null
-              ? '${_weatherData!['name']}, ${_weatherData!['sys']['country']}'
+          _currentWeatherData != null
+              ? '${_currentWeatherData!['name']}, ${_currentWeatherData!['sys']['country']}'
               : 'Weather App',
         ),
         actions: [
@@ -60,12 +60,12 @@ class _HomePageState extends State<HomePage> {
   }
 
 Widget _buildWeatherContent() {
-  if (_weatherData == null || _hourlyForecastData == null) {
+  if (_currentWeatherData == null) {
     return Center(child: Text('Error loading weather data'));
   }
 
   // Adjust this to directly handle the list if that's what your service returns
-  List<dynamic> forecastList = _hourlyForecastData;  // Previously _hourlyForecastData['lit']
+  var currentWeatherData = _currentWeatherData!;
 
   return SingleChildScrollView(
     child: Padding(
@@ -73,12 +73,14 @@ Widget _buildWeatherContent() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Your existing widget code...
-          StylecastWidget(forecastData: forecastList),
+          
+          CurrentWidget(currentWeatherData: currentWeatherData),
+          // StylecastWidget(currentWeatherData: currentWeatherData),
           SizedBox(height: 24),
-          TodayForecastWidget(forecastData: forecastList),
+          DetailWidget(currentWeatherData: currentWeatherData),
+          // TodayForecastWidget(currentWeatherData: currentWeatherData),
           SizedBox(height: 24),
-          WeeklyForecastWidget(forecastData: forecastList),
+          // WeeklyForecastWidget(currentWeatherData: currentWeatherData),
         ],
       ),
     ),
@@ -88,151 +90,201 @@ Widget _buildWeatherContent() {
 
 
 
-  String _getWeatherIconUrl(String iconCode) {
-    return 'https://openweathermap.org/img/wn/$iconCode@2x.png';
-  }
+  // String _getWeatherIconUrl(String iconCode) {
+  //   return 'https://openweathermap.org/img/wn/$iconCode@2x.png';
+  // }
 }
 
-class StylecastWidget extends StatelessWidget {
-  final List<dynamic> forecastData;
 
-  StylecastWidget({required this.forecastData});
+class CurrentWidget extends StatelessWidget{
+  final Map<String, dynamic> currentWeatherData;
+
+  CurrentWidget({required this.currentWeatherData});
 
   @override
   Widget build(BuildContext context) {
-    double minTemp = double.infinity;
-    double maxTemp = double.negativeInfinity;
-    for (var hourData in forecastData.take(4)) {
-      double temp = hourData['temp'].toDouble();
-      if (temp < minTemp) minTemp = temp;
-      if (temp > maxTemp) maxTemp = temp;
-    }
+    final DateTime time = DateTime.fromMillisecondsSinceEpoch(currentWeatherData['dt'] * 1000);
+    final iconUrl = 'https://openweathermap.org/img/wn/${currentWeatherData['weather'][0]['icon']}@2x.png';
+    final temperature = currentWeatherData['main']['temp'].toStringAsFixed(0);
+    final description = currentWeatherData['weather'][0]['description'];
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Stylecast for Next Hours',
+        Text('${time.hour}:${time.minute}'),
+        Image.network(iconUrl, width: 100, height: 100),
+        Text('$temperature°F'),
+        Text(description),
+      ],
+    );
+  }
+
+}
+
+class DetailWidget extends StatelessWidget{
+  final Map<String, dynamic> currentWeatherData;
+
+  DetailWidget({required this.currentWeatherData});
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Column(
+      children: [
+        const Text(
+          'Details',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        Text(
-          'Temperature from ${minTemp.toStringAsFixed(0)}°F to ${maxTemp.toStringAsFixed(0)}°F',
-          style: TextStyle(fontSize: 16),
-        ),
-        SizedBox(height: 16),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: forecastData.take(4).map<Widget>((data) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Column(
-                  children: [
-                    Image.network(
-                      _getWeatherIconUrl(data['weather'][0]['icon']),
-                      width: 48,
-                      height: 48,
-                    ),
-                    Text('${data['temp'].toStringAsFixed(0)}°F'),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ),
+        Text('Min. Temperature: ${currentWeatherData['main']['temp_min'].toStringAsFixed(0)}°F'),
+        Text('Max. Temperature: ${currentWeatherData['main']['temp_max'].toStringAsFixed(0)}°F'),
+        Text('Windspeed: ${currentWeatherData['wind']['speed']} mph'),
+        Text('Rain in 1hr: ${currentWeatherData['rain'] != null ? currentWeatherData['rain']['1h'] : 0}mm'),
+        Text('Humidity: ${currentWeatherData['main']['humidity']}%'),
+        Text('Sunrise: ${DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(currentWeatherData['sys']['sunrise'] * 1000))}'),
+        Text('Sunset: ${DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(currentWeatherData['sys']['sunset'] * 1000))}'),
       ],
     );
   }
+
 }
 
-class TodayForecastWidget extends StatelessWidget {
-  final List<dynamic> forecastData;
 
-  TodayForecastWidget({required this.forecastData});
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Hourly Forecast',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        Container(
-          height: 100,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: forecastData.length,
-            itemBuilder: (context, index) {
-              final hourData = forecastData[index];
-              final DateTime time = DateTime.fromMillisecondsSinceEpoch(hourData['dt'] * 1000);
-              final iconUrl = 'https://openweathermap.org/img/wn/${hourData['weather'][0]['icon']}@2x.png';
-              final temperature = hourData['temp'].toStringAsFixed(0);
+// class StylecastWidget extends StatelessWidget {
+//   final Map<String, dynamic> currentWeatherData;
 
-              return Container(
-                width: 80,
-                child: Column(
-                  children: [
-                    Text('${time.hour}:00', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Image.network(iconUrl, width: 50, height: 50),
-                    Text('$temperature°F'),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
+//   StylecastWidget({required this.currentWeatherData});
 
-class WeeklyForecastWidget extends StatelessWidget {
-  final List<dynamic> forecastData;
+//   @override
+//   Widget build(BuildContext context) {
+//     double minTemp = double.infinity;
+//     double maxTemp = double.negativeInfinity;
+//     // for (var hourData in forecastData.take(4)) {
+//     //   double temp = hourData['temp'].toDouble();
+//     //   if (temp < minTemp) minTemp = temp;
+//     //   if (temp > maxTemp) maxTemp = temp;
+//     // }
 
-  WeeklyForecastWidget({required this.forecastData});
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           'Stylecast for Next Hours',
+//           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+//         ),
+//         Text(
+//           'Temperature from ${minTemp.toStringAsFixed(0)}°F to ${maxTemp.toStringAsFixed(0)}°F',
+//           style: TextStyle(fontSize: 16),
+//         ),
+//         SizedBox(height: 16),
+//         // SingleChildScrollView(
+//         //   scrollDirection: Axis.horizontal,
+//         //   child: Row(
+//         //     mainAxisAlignment: MainAxisAlignment.center,
+//         //     children: forecastData.take(4).map<Widget>((data) {
+//         //       return Padding(
+//         //         padding: const EdgeInsets.only(right: 16),
+//         //         child: Column(
+//         //           children: [
+//         //             Image.network(
+//         //               _getWeatherIconUrl(data['weather'][0]['icon']),
+//         //               width: 48,
+//         //               height: 48,
+//         //             ),
+//         //             Text('${data['temp'].toStringAsFixed(0)}°F'),
+//         //           ],
+//         //         ),
+//         //       );
+//         //     }).toList(),
+//         //   ),
+//         // ),
+//       ],
+//     );
+//   }
+// }
 
-  @override
-  Widget build(BuildContext context) {
-    Map<String, List<dynamic>> dailySummaries = {};
-    for (var entry in forecastData) {
-      String date = DateFormat('yyyy-MM-dd').format(DateTime.fromMillisecondsSinceEpoch(entry['dt'] * 1000));
-      if (!dailySummaries.containsKey(date)) {
-        dailySummaries[date] = [];
-      }
-      dailySummaries[date]?.add(entry);
-    }
+// class TodayForecastWidget extends StatelessWidget {
+//   final Map<String, dynamic> currentWeatherData;
 
-    List<Widget> dailyWidgets = dailySummaries.entries.map((entry) {
-      // Casting each value to double explicitly
-      double maxTemp = entry.value.map<double>((e) => (e['main']['temp_max'] as num).toDouble()).reduce(max);
-      double minTemp = entry.value.map<double>((e) => (e['main']['temp_min'] as num).toDouble()).reduce(min);
-      return ListTile(
-        title: Text(entry.key),
-        subtitle: Text('Max: $maxTemp°F, Min: $minTemp°F'),
-      );
-    }).toList();
+//   TodayForecastWidget({required this.currentWeatherData});
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Daily Summaries', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        ...dailyWidgets,
-      ],
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           'Hourly Forecast',
+//           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+//         ),
+//         Container(
+//           height: 100,
+//           child: ListView.builder(
+//             scrollDirection: Axis.horizontal,
+//             itemCount: forecastData.length,
+//             itemBuilder: (context, index) {
+//               final hourData = forecastData[index];
+//               final DateTime time = DateTime.fromMillisecondsSinceEpoch(hourData['dt'] * 1000);
+//               final iconUrl = 'https://openweathermap.org/img/wn/${hourData['weather'][0]['icon']}@2x.png';
+//               final temperature = hourData['temp'].toStringAsFixed(0);
+
+//               return Container(
+//                 width: 80,
+//                 child: Column(
+//                   children: [
+//                     Text('${time.hour}:00', style: TextStyle(fontWeight: FontWeight.bold)),
+//                     Image.network(iconUrl, width: 50, height: 50),
+//                     Text('$temperature°F'),
+//                   ],
+//                 ),
+//               );
+//             },
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+
+// class WeeklyForecastWidget extends StatelessWidget {
+//   final Map<String, dynamic> currentWeatherData;
+
+//   WeeklyForecastWidget({required this.currentWeatherData});
+
+
+//   @override
+//   Widget build(BuildContext context) {
+//     Map<String, List<dynamic>> dailySummaries = {};
+//     for (var entry in forecastData) {
+//       String date = DateFormat('yyyy-MM-dd').format(DateTime.fromMillisecondsSinceEpoch(entry['dt'] * 1000));
+//       if (!dailySummaries.containsKey(date)) {
+//         dailySummaries[date] = [];
+//       }
+//       dailySummaries[date]?.add(entry);
+//     }
+
+//     List<Widget> dailyWidgets = dailySummaries.entries.map((entry) {
+//       // Casting each value to double explicitly
+//       double maxTemp = entry.value.map<double>((e) => (e['main']['temp_max'] as num).toDouble()).reduce(max);
+//       double minTemp = entry.value.map<double>((e) => (e['main']['temp_min'] as num).toDouble()).reduce(min);
+//       return ListTile(
+//         title: Text(entry.key),
+//         subtitle: Text('Max: $maxTemp°F, Min: $minTemp°F'),
+//       );
+//     }).toList();
+
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text('Daily Summaries', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+//         ...dailyWidgets,
+//       ],
+//     );
+//   }
+// }
 
 
 
 //Trying this out
-String _getWeatherIconUrl(dynamic weatherData) {
-    // Safely access the weather icon
-    if (weatherData != null && weatherData['weather'] != null && weatherData['weather'].isNotEmpty) {
-      return 'https://openweathermap.org/img/wn/${weatherData['weather'][0]['icon']}@2x.png';
-    } else {
-      return 'https://openweathermap.org/img/wn/01d@2x.png'; // Default icon if none found
-    }
-  }
+String geticonUrl(String iconCode) {
+  return 'https://openweathermap.org/img/wn/$iconCode@2x.png';
+}
