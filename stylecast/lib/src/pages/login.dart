@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:stylecast/src/pages/home.dart';
+import 'package:stylecast/src/pages/sign_up.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -40,17 +41,16 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false, // Prevent Bottom Overflow
       body: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 30.0), // Adjusted padding for sign-in text
+        padding: const EdgeInsets.symmetric(horizontal: 30.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Spacer(),
             SizedBox(height: 50),
             Padding(
-              padding: const EdgeInsets.only(
-                  left: 10.0), // Extra padding for Sign In text
+              padding: const EdgeInsets.only(left: 10.0),
               child: Text(
                 'Sign In',
                 style: TextStyle(
@@ -62,8 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             SizedBox(height: 50),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 10.0), // Adjusted padding for input fields
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -107,8 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0), // Adjusted padding for buttons
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
                 children: [
                   Row(
@@ -151,7 +149,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 20),
                   TextButton(
                     onPressed: () {
-                      // 새 계정 생성 로직
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                SignUpScreen()), // Navigate to SignUpScreen
+                      );
                     },
                     child: Text(
                       'Create a New Account',
@@ -165,6 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
             ),
+            Spacer(),
           ],
         ),
       ),

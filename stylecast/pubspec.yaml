@@ -52,6 +52,14 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: "^0.13.1"
+
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/stylecast_icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -69,9 +77,16 @@ flutter:
   - assets/images/stylecast_splash.png
   - assets/images/apple_logo.png
   - assets/images/google_logo.png
+  - assets/images/email_verification.png
   - assets/images/cardigan.png
   - assets/images/tshirt.png
   - assets/images/jeans.png
+  - assets/images/account_created.png
+  - assets/images/next.png
+  fonts:
+    - family: SFProCondensed
+      fonts:
+        - asset: assets/fonts/SFUITextCondensed-Regular.otf
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
