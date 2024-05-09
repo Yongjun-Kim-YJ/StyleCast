@@ -158,6 +158,7 @@ class DetailsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final feelsLike = currentWeatherData['main']['feels_like'].toStringAsFixed(0);
     final minTemp = currentWeatherData['main']['temp_min'].toStringAsFixed(0);
     final maxTemp = currentWeatherData['main']['temp_max'].toStringAsFixed(0);
     final windSpeed = currentWeatherData['wind']['speed'].toString();
@@ -170,7 +171,7 @@ class DetailsWidget extends StatelessWidget {
       children: [
         SizedBox(
           width: 330,
-          height: 390,
+          height: 432,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -221,7 +222,7 @@ class DetailsWidget extends StatelessWidget {
                       decoration: BoxDecoration(color: Color(0xFFF6F6F6)),
                     ),
                     Container(
-                      height: 321,
+                      height: 363,
                       clipBehavior: Clip.antiAlias,
                       decoration: BoxDecoration(color: Color(0xFFF6F6F6)),
                       child: Column(
@@ -230,7 +231,7 @@ class DetailsWidget extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            height: 321,
+                            height: 363,
                             clipBehavior: Clip.antiAlias,
                             decoration: BoxDecoration(),
                             child: Column(
@@ -238,6 +239,42 @@ class DetailsWidget extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                Center(child:
+                                  SizedBox(
+                                    width: 243,
+                                    height: 17,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Feels Like',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w600,
+                                            height: 0,
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          '$feelsLike°F', // Dynamic temperature
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w400,
+                                            height: 0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 25),
                                 Center(child:
                                   SizedBox(
                                     width: 243,
