@@ -22,17 +22,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _fetchWeatherData() async {
-  try {
-    final weatherData = await _weatherService.getWeather(_city);
-    final forecastData = await _weatherService.getFiveDayForecast(_city);
-    setState(() {
-      _weatherData = weatherData;
-      _hourlyForecastData = forecastData;  // Adjust this line based on actual data structure
-      _isLoading = false;
-    });
-  } catch (e) {
-    print(e);
-  }
+    try {
+      final weatherData = await _weatherService.getWeather(_city);
+      // Using hardcoded coordinates for San Jose, adjust as necessary
+      final hourlyForecastData = await _weatherService.getHourlyForecast(37.3382, -121.8863);
+      setState(() {
+        _weatherData = weatherData;
+        _hourlyForecastData = hourlyForecastData['hourly'];  // Assuming 'hourly' is the correct key
+        _isLoading = false;
+      });
+    } catch (e) {
+      print(e);
+    }
 }
 
 
@@ -65,7 +66,7 @@ Widget _buildWeatherContent() {
   }
 
   // Adjust this to directly handle the list if that's what your service returns
-  List<dynamic> forecastList = _hourlyForecastData;  // Previously _hourlyForecastData['lit']
+  List<dynamic> hourlyList = _hourlyForecastData!['hourly'];  // Previously _hourlyForecastData['lit']
 
   return SingleChildScrollView(
     child: Padding(
@@ -74,11 +75,11 @@ Widget _buildWeatherContent() {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Your existing widget code...
-          StylecastWidget(forecastData: forecastList),
+          StylecastWidget(forecastData: hourlyList),
           SizedBox(height: 24),
-          TodayForecastWidget(forecastData: forecastList),
+          TodayForecastWidget(forecastData: hourlyList),
           SizedBox(height: 24),
-          WeeklyForecastWidget(forecastData: forecastList),
+          WeeklyForecastWidget(forecastData: hourlyList),
         ],
       ),
     ),
