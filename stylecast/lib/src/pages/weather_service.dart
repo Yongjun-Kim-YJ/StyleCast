@@ -6,9 +6,9 @@ class WeatherService {
   final String apiKey = "c708530f302b4fde10c6ddb3bbfdbdaa";
 
 
-  Future<Map<String, dynamic>> getWeather(String city) async {
+  Future<Map<String, dynamic>> getCurrentWeather(double lat, double lon) async {
     final response = await http.get(
-      Uri.parse("$baseUrl/weather?q=$city&appid=$apiKey&units=imperial"),
+      Uri.parse("$baseUrl/weather?lat=$lat&lon=$lon&appid=$apiKey&units=imperial"),
     );
 
     if (response.statusCode == 200) {
