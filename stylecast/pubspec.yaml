@@ -77,9 +77,16 @@ flutter:
   - assets/images/stylecast_splash.png
   - assets/images/apple_logo.png
   - assets/images/google_logo.png
+  - assets/images/email_verification.png
   - assets/images/cardigan.png
   - assets/images/tshirt.png
   - assets/images/jeans.png
+  - assets/images/account_created.png
+  - assets/images/next.png
+  fonts:
+    - family: SFProCondensed
+      fonts:
+        - asset: assets/fonts/SFUITextCondensed-Regular.otf
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

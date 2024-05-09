@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:stylecast/src/pages/sign_up_verification.dart';
+import 'package:stylecast/src/pages/sign_up_complete.dart';
 
-class SignUpScreen extends StatefulWidget {
+class SignUpUserInfoScreen extends StatefulWidget {
   @override
-  _SignUpScreenState createState() => _SignUpScreenState();
+  _SignUpUserInfoScreenState createState() => _SignUpUserInfoScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
-  final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
+class _SignUpUserInfoScreenState extends State<SignUpUserInfoScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
-  void _navigateToEmailVerification() {
+  void _navigateToSignUpComplete() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) =>
-            EmailVerificationScreen(email: _emailController.text.trim()),
+        builder: (context) => SignUpCompleteScreen(),
       ),
     );
   }
@@ -54,7 +54,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ),
             Text(
-              'General Information',
+              'Login Information',
               style: TextStyle(
                 fontFamily: 'SF Pro',
                 letterSpacing: 0,
@@ -88,7 +88,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   width: 20,
                   height: 20,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Color(0xFF2979FF),
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: Color(0xFF2979FF),
@@ -105,7 +105,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   width: 20,
                   height: 20,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Color(0xFF2979FF),
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: Color(0xFF2979FF),
@@ -120,7 +120,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'First Name',
+                  'Username',
                   style: TextStyle(
                     fontFamily: 'SF Pro',
                     fontSize: 15,
@@ -133,7 +133,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   width: 307,
                   height: 50,
                   child: TextField(
-                    controller: _firstNameController,
+                    controller: _usernameController,
                     textAlignVertical: TextAlignVertical.top,
                     cursorColor: Color(0xFF777777),
                     decoration: InputDecoration(
@@ -161,7 +161,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Last Name',
+                  'Password',
                   style: TextStyle(
                     fontFamily: 'SF Pro',
                     fontSize: 15,
@@ -174,7 +174,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   width: 307,
                   height: 50,
                   child: TextField(
-                    controller: _lastNameController,
+                    controller: _passwordController,
+                    obscureText: true,
                     textAlignVertical: TextAlignVertical.top,
                     cursorColor: Color(0xFF777777),
                     decoration: InputDecoration(
@@ -202,7 +203,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Email Address',
+                  'Confirm Password',
                   style: TextStyle(
                     fontFamily: 'SF Pro',
                     fontSize: 15,
@@ -215,7 +216,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   width: 307,
                   height: 50,
                   child: TextField(
-                    controller: _emailController,
+                    controller: _confirmPasswordController,
+                    obscureText: true,
                     textAlignVertical: TextAlignVertical.top,
                     cursorColor: Color(0xFF777777),
                     decoration: InputDecoration(
@@ -242,7 +244,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
-                onTap: _navigateToEmailVerification,
+                onTap: _navigateToSignUpComplete,
                 child: Container(
                   width: 114,
                   height: 46,
