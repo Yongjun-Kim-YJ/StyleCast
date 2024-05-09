@@ -103,14 +103,14 @@ class CurrentWidget extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     final DateTime time = DateTime.fromMillisecondsSinceEpoch(currentWeatherData['dt'] * 1000);
-    // final iconUrl = _getWeatherIconUrl(currentWeatherData['weather'][0]['icon']);
+    final iconUrl = 'https://openweathermap.org/img/wn/${currentWeatherData['weather'][0]['icon']}@2x.png';
     final temperature = currentWeatherData['main']['temp'].toStringAsFixed(0);
     final description = currentWeatherData['weather'][0]['description'];
 
     return Column(
       children: [
         Text('${time.hour}:${time.minute}'),
-        // Image.network(iconUrl, width: 100, height: 100),
+        Image.network(iconUrl, width: 100, height: 100),
         Text('$temperature°F'),
         Text(description),
       ],
@@ -255,12 +255,7 @@ class CurrentWidget extends StatelessWidget{
 
 
 
-// //Trying this out
-// String _getWeatherIconUrl(dynamic weatherData) {
-//     // Safely access the weather icon
-//     if (weatherData != null && weatherData['weather'] != null && weatherData['weather'].isNotEmpty) {
-//       return 'https://openweathermap.org/img/wn/${weatherData['weather'][0]['icon']}@2x.png';
-//     } else {
-//       return 'https://openweathermap.org/img/wn/01d@2x.png'; // Default icon if none found
-//     }
-//   }
+//Trying this out
+String geticonUrl(String iconCode) {
+  return 'https://openweathermap.org/img/wn/$iconCode@2x.png';
+}
