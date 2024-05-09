@@ -22,19 +22,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _fetchWeatherData() async {
-    try {
-      final weatherData = await _weatherService.getWeather(_city);
-      // Using hardcoded coordinates for San Jose, adjust as necessary
-      final hourlyForecastData = await _weatherService.getHourlyForecast(37.3382, -121.8863);
-      setState(() {
-        _weatherData = weatherData;
-        _hourlyForecastData = hourlyForecastData['hourly'];  // Assuming 'hourly' is the correct key
-        _isLoading = false;
-      });
-    } catch (e) {
-      print(e);
-    }
+  try {
+    final weatherData = await _weatherService.getWeather(_city);
+    final forecastData = await _weatherService.getFiveDayForecast(_city);
+    setState(() {
+      _weatherData = weatherData;
+      _hourlyForecastData = forecastData;  // Adjust this line based on actual data structure
+      _isLoading = false;
+    });
+  } catch (e) {
+    print(e);
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -59,54 +59,34 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildWeatherContent() {
-    if (_weatherData == null || _hourlyForecastData == null) {
-      return Center(child: Text('Error loading weather data'));
-    }
-
-    // Assuming 'hourly' is the key that contains the list of forecast data
-    //List<dynamic> hourlyList = _hourlyForecastData!;  // Use direct list assuming correct structure
-    List<dynamic> hourlyList = _hourlyForecastData!['hourly'] as List<dynamic>;
-
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 30.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.network(
-                    _getWeatherIconUrl(_weatherData!['weather'][0]['icon']),
-                    width: 120,
-                    height: 120,
-                  ),
-                  Text(
-                    '${_weatherData!['main']['temp'].toStringAsFixed(0)}°F',
-                    style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              _weatherData!['weather'][0]['description'].toUpperCase(),
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 16),
-            StylecastWidget(forecastData: hourlyList),
-            SizedBox(height: 24),
-            TodayForecastWidget(forecastData: hourlyList),
-            SizedBox(height: 24),
-            WeeklyForecastWidget(forecastData: hourlyList),
-          ],
-        ),
-      ),
-    );
+Widget _buildWeatherContent() {
+  if (_weatherData == null || _hourlyForecastData == null) {
+    return Center(child: Text('Error loading weather data'));
   }
+
+  // Adjust this to directly handle the list if that's what your service returns
+  List<dynamic> forecastList = _hourlyForecastData;  // Previously _hourlyForecastData['lit']
+
+  return SingleChildScrollView(
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Your existing widget code...
+          StylecastWidget(forecastData: forecastList),
+          SizedBox(height: 24),
+          TodayForecastWidget(forecastData: forecastList),
+          SizedBox(height: 24),
+          WeeklyForecastWidget(forecastData: forecastList),
+        ],
+      ),
+    ),
+  );
+}
+
+
+
 
   String _getWeatherIconUrl(String iconCode) {
     return 'https://openweathermap.org/img/wn/$iconCode@2x.png';
@@ -216,51 +196,36 @@ class WeeklyForecastWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Group by day for demonstration, assuming hourly data includes a timestamp
-    Map<String, List<dynamic>> dailyData = {};
-    for (var data in forecastData) {
-      String day = DateFormat('yyyy-MM-dd').format(DateTime.fromMillisecondsSinceEpoch(data['dt'] * 1000));
-      if (!dailyData.containsKey(day)) {
-        dailyData[day] = [];
+    Map<String, List<dynamic>> dailySummaries = {};
+    for (var entry in forecastData) {
+      String date = DateFormat('yyyy-MM-dd').format(DateTime.fromMillisecondsSinceEpoch(entry['dt'] * 1000));
+      if (!dailySummaries.containsKey(date)) {
+        dailySummaries[date] = [];
       }
-      dailyData[day]!.add(data);
+      dailySummaries[date]?.add(entry);
     }
 
-    List<Widget> dayWidgets = [];
-    dailyData.forEach((day, data) {
-      var dayWeather = data[0]; // Use the first entry of each day as representative
-      var date = DateFormat('EEEE, MMM d').format(DateTime.parse(day));
-      var maxTemp = data.map<double>((e) => e['temp']).reduce(max);
-      var minTemp = data.map<double>((e) => e['temp']).reduce(min);
-      var icon = dayWeather['weather'][0]['icon'];
-      dayWidgets.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(date, style: TextStyle(fontWeight: FontWeight.bold)),
-              Row(
-                children: [
-                  Image.network(_getWeatherIconUrl(icon), width: 50, height: 50),
-                  Text('${minTemp.toStringAsFixed(0)}°F - ${maxTemp.toStringAsFixed(0)}°F'),
-                ],
-              ),
-            ],
-          ),
-        ),
+    List<Widget> dailyWidgets = dailySummaries.entries.map((entry) {
+      // Casting each value to double explicitly
+      double maxTemp = entry.value.map<double>((e) => (e['main']['temp_max'] as num).toDouble()).reduce(max);
+      double minTemp = entry.value.map<double>((e) => (e['main']['temp_min'] as num).toDouble()).reduce(min);
+      return ListTile(
+        title: Text(entry.key),
+        subtitle: Text('Max: $maxTemp°F, Min: $minTemp°F'),
       );
-    });
+    }).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Weekly Forecast', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        ...dayWidgets,
+        Text('Daily Summaries', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        ...dailyWidgets,
       ],
     );
   }
 }
+
+
 
 //Trying this out
 String _getWeatherIconUrl(dynamic weatherData) {
