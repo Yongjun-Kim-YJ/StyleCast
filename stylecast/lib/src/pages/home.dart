@@ -77,6 +77,7 @@ Widget _buildWeatherContent() {
           CurrentWidget(currentWeatherData: currentWeatherData),
           // StylecastWidget(currentWeatherData: currentWeatherData),
           SizedBox(height: 24),
+          DetailWidget(currentWeatherData: currentWeatherData),
           // TodayForecastWidget(currentWeatherData: currentWeatherData),
           SizedBox(height: 24),
           // WeeklyForecastWidget(currentWeatherData: currentWeatherData),
@@ -118,6 +119,34 @@ class CurrentWidget extends StatelessWidget{
   }
 
 }
+
+class DetailWidget extends StatelessWidget{
+  final Map<String, dynamic> currentWeatherData;
+
+  DetailWidget({required this.currentWeatherData});
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Column(
+      children: [
+        const Text(
+          'Details',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        Text('Min. Temperature: ${currentWeatherData['main']['temp_min'].toStringAsFixed(0)}°F'),
+        Text('Max. Temperature: ${currentWeatherData['main']['temp_max'].toStringAsFixed(0)}°F'),
+        Text('Windspeed: ${currentWeatherData['wind']['speed']} mph'),
+        Text('Rain in 1hr: ${currentWeatherData['rain'] != null ? currentWeatherData['rain']['1h'] : 0}mm'),
+        Text('Humidity: ${currentWeatherData['main']['humidity']}%'),
+        Text('Sunrise: ${DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(currentWeatherData['sys']['sunrise'] * 1000))}'),
+        Text('Sunset: ${DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(currentWeatherData['sys']['sunset'] * 1000))}'),
+      ],
+    );
+  }
+
+}
+
 
 
 // class StylecastWidget extends StatelessWidget {
