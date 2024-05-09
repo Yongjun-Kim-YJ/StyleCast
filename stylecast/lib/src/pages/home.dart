@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
+
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -40,7 +42,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(Icons.menu),
+        leading: const Icon(Icons.menu),
         title: Text(
           _currentWeatherData != null
               ? '${_currentWeatherData!['name']}, ${_currentWeatherData!['sys']['country']}'
@@ -48,23 +50,22 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: _fetchWeatherData,
           ),
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _buildWeatherContent(),
     );
   }
 
 Widget _buildWeatherContent() {
   if (_currentWeatherData == null) {
-    return Center(child: Text('Error loading weather data'));
+    return const Center(child: Text('Error loading weather data'));
   }
 
-  // Adjust this to directly handle the list if that's what your service returns
   var currentWeatherData = _currentWeatherData!;
 
   return SingleChildScrollView(
@@ -74,12 +75,12 @@ Widget _buildWeatherContent() {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           
-          CurrentWidget(currentWeatherData: currentWeatherData),
+          Center(child:CurrentWidget(currentWeatherData: currentWeatherData)),
           // StylecastWidget(currentWeatherData: currentWeatherData),
-          SizedBox(height: 24),
-          DetailWidget(currentWeatherData: currentWeatherData),
+          const SizedBox(height: 24),
+          Center(child: DetailsWidget(currentWeatherData: currentWeatherData)),
           // TodayForecastWidget(currentWeatherData: currentWeatherData),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           // WeeklyForecastWidget(currentWeatherData: currentWeatherData),
         ],
       ),
@@ -120,32 +121,395 @@ class CurrentWidget extends StatelessWidget{
 
 }
 
-class DetailWidget extends StatelessWidget{
+class DetailsWidget extends StatelessWidget {
   final Map<String, dynamic> currentWeatherData;
 
-  DetailWidget({required this.currentWeatherData});
+  DetailsWidget({required this.currentWeatherData});
 
   @override
   Widget build(BuildContext context) {
+    final minTemp = currentWeatherData['main']['temp_min'].toStringAsFixed(0);
+    final maxTemp = currentWeatherData['main']['temp_max'].toStringAsFixed(0);
+    final windSpeed = currentWeatherData['wind']['speed'].toString();
+    final rain = currentWeatherData['rain'] != null ? currentWeatherData['rain']['1h'].toString() : '0';
+    final humidity = currentWeatherData['main']['humidity'].toString();
+    final sunrise = DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(currentWeatherData['sys']['sunrise'] * 1000));
+    final sunset = DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(currentWeatherData['sys']['sunset'] * 1000));
 
     return Column(
       children: [
-        const Text(
-          'Details',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Container(
+          width: 330,
+          height: 390,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 330,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(
+                        'Details',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontFamily: 'SF Pro',
+                          fontWeight: FontWeight.w600,
+                          height: 0,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                clipBehavior: Clip.antiAlias,
+                decoration: ShapeDecoration(
+                  color: Color(0xFFF6F6F6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 330,
+                      height: 20,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(color: Color(0xFFF6F6F6)),
+                    ),
+                    Container(
+                      height: 321,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(color: Color(0xFFF6F6F6)),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 321,
+                            clipBehavior: Clip.antiAlias,
+                            decoration: BoxDecoration(),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Center(child:
+                                  Container(
+                                    width: 243,
+                                    height: 17,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Min. Temperature',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w600,
+                                            height: 0,
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          '$minTemp°F', // Dynamic temperature
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w400,
+                                            height: 0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 25),
+                                Center(child:
+                                  Container(
+                                    width: 243,
+                                    height: 17,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Max. Temperature',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w600,
+                                            height: 0,
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          '$maxTemp°F', // Dynamic temperature
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w400,
+                                            height: 0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+
+
+                                SizedBox(height: 25),
+                                Container(
+                                  width: 240,
+                                  height: 1,
+                                  decoration: const BoxDecoration(color: Color(0xFF1F1F1F)),
+                                ),
+                                SizedBox(height: 25),
+
+
+
+                                Center(child:
+                                  Container(
+                                    width: 243,
+                                    height: 17,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Windspeed',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w600,
+                                            height: 0,
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          '$windSpeed'' mph',
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w400,
+                                            height: 0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 25),
+                                Center(child:
+                                  Container(
+                                    width: 243,
+                                    height: 17,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Rains in 1hr',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w600,
+                                            height: 0,
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          '$rain'' mm', // Dynamic temperature
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w400,
+                                            height: 0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 25),
+                                Center(child:
+                                  Container(
+                                    width: 243,
+                                    height: 17,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Humidity',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w600,
+                                            height: 0,
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          '$humidity''%', // Dynamic temperature
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w400,
+                                            height: 0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                                SizedBox(height: 25),
+                                Container(
+                                  width: 240,
+                                  height: 1,
+                                  decoration: const BoxDecoration(color: Color(0xFF1F1F1F)),
+                                ),
+                                SizedBox(height: 25),
+
+
+
+                                Center(child:
+                                  Container(
+                                    width: 243,
+                                    height: 17,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Sunrise',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w600,
+                                            height: 0,
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          '$sunrise', // Dynamic temperature
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w400,
+                                            height: 0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+
+                                SizedBox(height: 25),
+
+                                Center(child:
+                                  Container(
+                                    width: 243,
+                                    height: 17,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Sunset',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w600,
+                                            height: 0,
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          '$sunset', // Dynamic temperature
+                                          textAlign: TextAlign.right,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14,
+                                            fontFamily: 'SF Pro',
+                                            fontWeight: FontWeight.w400,
+                                            height: 0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                                
+                                // Other similar modifications for max temp, wind speed, etc.
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 330,
+                      height: 20,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(color: Color(0xFFF6F6F6)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        Text('Min. Temperature: ${currentWeatherData['main']['temp_min'].toStringAsFixed(0)}°F'),
-        Text('Max. Temperature: ${currentWeatherData['main']['temp_max'].toStringAsFixed(0)}°F'),
-        Text('Windspeed: ${currentWeatherData['wind']['speed']} mph'),
-        Text('Rain in 1hr: ${currentWeatherData['rain'] != null ? currentWeatherData['rain']['1h'] : 0}mm'),
-        Text('Humidity: ${currentWeatherData['main']['humidity']}%'),
-        Text('Sunrise: ${DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(currentWeatherData['sys']['sunrise'] * 1000))}'),
-        Text('Sunset: ${DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(currentWeatherData['sys']['sunset'] * 1000))}'),
       ],
     );
   }
-
 }
+
 
 
 
