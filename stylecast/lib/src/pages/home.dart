@@ -15,6 +15,7 @@ class _HomePageState extends State<HomePage> {
   double latitude = 37.3382;
   double longtitude = -121.8863;
   Map<String, dynamic>? _currentWeatherData;
+  Map<String, dynamic>? _forecastWeatherData;
   bool _isLoading = true;
 
   @override
@@ -26,9 +27,11 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchWeatherData() async {
     try {
       final currentWeatherData = await _weatherService.getCurrentWeather(latitude, longtitude);
+      final forecastWeatherData = await _weatherService.getForecastWeather(latitude, longtitude);
       // Using hardcoded coordinates for San Jose, adjust as necessary
       setState(() {
         _currentWeatherData = currentWeatherData;
+        _forecastWeatherData = forecastWeatherData;
         _isLoading = false;
       });
     } catch (e) {
@@ -57,15 +60,31 @@ class _HomePageState extends State<HomePage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _buildWeatherContent(),
-    );
-  }
+  );
+}
 
 Widget _buildWeatherContent() {
   if (_currentWeatherData == null) {
     return const Center(child: Text('Error loading weather data'));
   }
+  if (_forecastWeatherData == null) {
+    return const Center(child: Text('Error loading forecast data'));
+  }
 
   var currentWeatherData = _currentWeatherData!;
+  var forecastWeatherData = _forecastWeatherData!['list'];
+  if (forecastWeatherData.isEmpty) {
+    return const Center(child: Text('No forecast data available'));
+  }
+
+  var firstForecast = forecastWeatherData[0]; // change this indext to get the forecast for the next hour
+  var secondForecast = forecastWeatherData[1];
+  var firstForecastDate = firstForecast['dt_txt'];
+  var minTemp = firstForecast['main']['temp_min']; // Convert from Kelvin to Celsius
+  var maxTemp = firstForecast['main']['temp_max']; // Convert from Kelvin to Celsius
+  var humidity = firstForecast['main']['humidity'];
+  var windSpeed = firstForecast['wind']['speed'];
+  var weatherDescription = firstForecast['weather'][0]['description'];
 
   return SingleChildScrollView(
     child: Padding(
@@ -73,13 +92,25 @@ Widget _buildWeatherContent() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          
+        
           Center(child:CurrentWidget(currentWeatherData: currentWeatherData)),
           // StylecastWidget(currentWeatherData: currentWeatherData),
           const SizedBox(height: 24),
           Center(child: DetailsWidget(currentWeatherData: currentWeatherData)),
           // TodayForecastWidget(currentWeatherData: currentWeatherData),
           const SizedBox(height: 24),
+          Text('First forecast date: $firstForecastDate'),
+          Text('First minimum temperature: $minTemp'),
+          Text('First maximum temperature: $maxTemp'),
+          Text('First humidity: $humidity'),
+          Text('First wind speed: $windSpeed'),
+          Text('First weather description: $weatherDescription'),
+          Text('Second forecast date: ${secondForecast['dt_txt']}'),
+          Text('Second minimum temperature: ${secondForecast['main']['temp_min']}'),
+          Text('Second maximum temperature: ${secondForecast['main']['temp_max']}'),
+          Text('Second humidity: ${secondForecast['main']['humidity']}'),
+          Text('Second wind speed: ${secondForecast['wind']['speed']}'),
+          Text('Second weather description: ${secondForecast['weather'][0]['description']}'),
           // WeeklyForecastWidget(currentWeatherData: currentWeatherData),
         ],
       ),
