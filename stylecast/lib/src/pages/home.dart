@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'weather_service.dart';  // Ensure this is correctly imported
@@ -138,7 +137,7 @@ class DetailsWidget extends StatelessWidget {
 
     return Column(
       children: [
-        Container(
+        SizedBox(
           width: 330,
           height: 390,
           child: Column(
@@ -209,7 +208,7 @@ class DetailsWidget extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Center(child:
-                                  Container(
+                                  SizedBox(
                                     width: 243,
                                     height: 17,
                                     child: Row(
@@ -245,7 +244,7 @@ class DetailsWidget extends StatelessWidget {
                                 ),
                                 SizedBox(height: 25),
                                 Center(child:
-                                  Container(
+                                  SizedBox(
                                     width: 243,
                                     height: 17,
                                     child: Row(
@@ -293,7 +292,7 @@ class DetailsWidget extends StatelessWidget {
 
 
                                 Center(child:
-                                  Container(
+                                  SizedBox(
                                     width: 243,
                                     height: 17,
                                     child: Row(
@@ -329,7 +328,7 @@ class DetailsWidget extends StatelessWidget {
                                 ),
                                 SizedBox(height: 25),
                                 Center(child:
-                                  Container(
+                                  SizedBox(
                                     width: 243,
                                     height: 17,
                                     child: Row(
@@ -365,7 +364,7 @@ class DetailsWidget extends StatelessWidget {
                                 ),
                                 SizedBox(height: 25),
                                 Center(child:
-                                  Container(
+                                  SizedBox(
                                     width: 243,
                                     height: 17,
                                     child: Row(
@@ -411,7 +410,7 @@ class DetailsWidget extends StatelessWidget {
 
 
                                 Center(child:
-                                  Container(
+                                  SizedBox(
                                     width: 243,
                                     height: 17,
                                     child: Row(
@@ -450,7 +449,7 @@ class DetailsWidget extends StatelessWidget {
                                 SizedBox(height: 25),
 
                                 Center(child:
-                                  Container(
+                                  SizedBox(
                                     width: 243,
                                     height: 17,
                                     child: Row(
