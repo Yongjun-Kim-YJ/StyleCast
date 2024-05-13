@@ -1,5 +1,5 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'weather_service.dart';  // Ensure this is correctly imported
@@ -94,8 +94,10 @@ Widget _buildWeatherContent() {
         children: [
         
           Center(child:CurrentWidget(currentWeatherData: currentWeatherData)),
-          // StylecastWidget(currentWeatherData: currentWeatherData),
+          //StylecastWidget(currentWeatherData: currentWeatherData),
+          Center(child: StylecastWidget(forecastData: forecastWeatherData)),
           const SizedBox(height: 24),
+          Center(child: WeeklyForecastWidget(forecastData: forecastWeatherData)),
           Center(child: DetailsWidget(currentWeatherData: currentWeatherData)),
           // TodayForecastWidget(currentWeatherData: currentWeatherData),
           const SizedBox(height: 24),
@@ -149,6 +151,47 @@ class CurrentWidget extends StatelessWidget{
     );
   }
 
+}
+
+class WeeklyForecastWidget extends StatelessWidget {
+  final List<dynamic> forecastData;
+
+  WeeklyForecastWidget({required this.forecastData});
+
+  @override
+  Widget build(BuildContext context) {
+    Map<String, List<dynamic>> dailyForecasts = {};
+    for (var forecast in forecastData) {
+      String date = DateFormat('yyyy-MM-dd').format(DateTime.parse(forecast['dt_txt']));
+      if (!dailyForecasts.containsKey(date)) {
+        dailyForecasts[date] = [];
+      }
+      dailyForecasts[date]!.add(forecast);
+    }
+
+    List<Widget> forecastWidgets = [];
+    dailyForecasts.forEach((date, forecasts) {
+      var maxTemp = forecasts.fold<double>(-273.15, (max, f) => math.max(max, f['main']['temp_max']));
+      var minTemp = forecasts.fold<double>(double.infinity, (min, f) => math.min(min, f['main']['temp_min']));
+      forecastWidgets.add(
+        ListTile(
+          title: Text(date),
+          subtitle: Text('Max Temp: ${maxTemp.toStringAsFixed(1)}°F \n Min Temp: ${minTemp.toStringAsFixed(1)}°F'),
+        ),
+      );
+    });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text('5-Day Forecast', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        ),
+        ...forecastWidgets,
+      ],
+    );
+  }
 }
 
 class DetailsWidget extends StatelessWidget {
@@ -578,7 +621,237 @@ class DetailsWidget extends StatelessWidget {
 }
 
 
+//Experimenting with StylecastWidget + getClothingRecommendation + WeatherInfo
+class StylecastWidget extends StatelessWidget {
+  //final Map<String, dynamic> forecastData;
+  //final Map<String, dynamic> currentWeatherData;
+  final List<dynamic> forecastData;
 
+  StylecastWidget({required this.forecastData});
+
+  //StylecastWidget({required this.currentWeatherData});
+
+  @override
+  Widget build(BuildContext context) {
+    // Dummy data for clothing recommendations based on temperature.
+    //final temperature = forecastData['temp'];
+    // final minTemp = currentWeatherData['main']['temp_min'].toStringAsFixed(0);
+    // final maxTemp = currentWeatherData['main']['temp_max'].toStringAsFixed(0);
+    var maxTemp = forecastData.fold<double>(-273.15, (max, f) => math.max(max, f['main']['temp_max']));
+    var minTemp = forecastData.fold<double>(double.infinity, (min, f) => math.min(min, f['main']['temp_min']));
+    String maxTempString = maxTemp.toStringAsFixed(0);
+    String minTempString = minTemp.toStringAsFixed(0);
+
+    
+    //Come back to this later!
+    //String clothingRecommendation = getClothingRecommendation(temperature);
+    //String temperatureString = temperature.toStringAsFixed(0);
+
+    //final iconUrl = 'https://openweathermap.org/img/wn/${currentWeatherData['weather'][0]['icon']}@2x.png';
+    //final description = currentWeatherData['weather'][0]['description'];
+
+    return Column(
+      children: [
+        Container(
+          width: 330,
+          height: 138,
+          clipBehavior: Clip.antiAlias,
+          decoration: ShapeDecoration(
+            color: Color(0xFFF0F6FF),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 330,
+                height: 20,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(color: Color(0xFFF0F6FF)),
+              ),
+              Container(
+                width: 330,
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Today: ' + minTempString + '°F - ' + maxTempString + '°F',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'SF Pro',
+                        fontWeight: FontWeight.w500,
+                        height: 0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: 330,
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+              ),
+              Container(
+                width: 330,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage("https://via.placeholder.com/42x42"),
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Cardigan',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 12,
+                              fontFamily: 'SF Pro',
+                              fontWeight: FontWeight.w500,
+                              height: 0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 25),
+                    Container(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage("https://via.placeholder.com/42x42"),
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'T-Shirt',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 12,
+                              fontFamily: 'SF Pro',
+                              fontWeight: FontWeight.w500,
+                              height: 0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 25),
+                    Container(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage("https://via.placeholder.com/42x42"),
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Jeans',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 12,
+                              fontFamily: 'SF Pro',
+                              fontWeight: FontWeight.w500,
+                              height: 0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: 330,
+                height: 20,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(color: Color(0xFFF0F6FF)),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String getClothingRecommendation(double temp) {
+    if (temp > 25) {
+      return 'T-Shirt & Shorts';
+    } else if (temp > 15) {
+      return 'Long Sleeve & Jeans';
+    } else {
+      return 'Jacket & Warm Pants';
+    }
+  }
+}
+
+class _WeatherInfo extends StatelessWidget {
+  final String iconUrl;
+  final String temperature;
+  final String description;
+
+  const _WeatherInfo({
+    Key? key,
+    required this.iconUrl,
+    required this.temperature,
+    required this.description,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Image.network(iconUrl, width: 70, height: 70),
+        Text('$temperature°F', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        Text(description, style: TextStyle(fontSize: 16)),
+      ],
+    );
+  }
+}
 
 // class StylecastWidget extends StatelessWidget {
 //   final Map<String, dynamic> currentWeatherData;
