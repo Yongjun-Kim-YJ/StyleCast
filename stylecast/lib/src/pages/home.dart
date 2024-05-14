@@ -128,7 +128,6 @@ class _HomePageState extends State<HomePage> {
 
 }
 
-
 class CurrentWidget extends StatelessWidget {
   final Map<String, dynamic> currentWeatherData;
 
@@ -985,7 +984,6 @@ List<int> getDistinctDateIndices(List<dynamic> weatherList) {
   return indices;
 }
 
-
 List<int> getTomorrowIndices(List<dynamic> weatherList, DateTime today) {
   List<int> indices = [];
   DateTime tomorrow = today.add(Duration(days: 1));
@@ -1024,6 +1022,7 @@ String formatTimeFromUnix(int dt) {
   
   return formattedTime;
 }
+
 List<List<dynamic>> getDailyMinMaxTemperatures(List<dynamic> forecastWeatherData) {
   Map<String, List<int>> dailyTemps = {};
 
