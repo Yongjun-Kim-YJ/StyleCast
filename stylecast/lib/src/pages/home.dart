@@ -92,25 +92,24 @@ Widget _buildWeatherContent() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-        
+          const SizedBox(height: 30),
           Center(child:CurrentWidget(currentWeatherData: currentWeatherData)),
-          // StylecastWidget(currentWeatherData: currentWeatherData),
+          const SizedBox(height: 30),
+          Center (child: StylecastWidget(currentWeatherData: currentWeatherData)),
           const SizedBox(height: 24),
           Center(child: DetailsWidget(currentWeatherData: currentWeatherData)),
-          // TodayForecastWidget(currentWeatherData: currentWeatherData),
-          const SizedBox(height: 24),
-          Text('First forecast date: $firstForecastDate'),
-          Text('First minimum temperature: $minTemp'),
-          Text('First maximum temperature: $maxTemp'),
-          Text('First humidity: $humidity'),
-          Text('First wind speed: $windSpeed'),
-          Text('First weather description: $weatherDescription'),
-          Text('Second forecast date: ${secondForecast['dt_txt']}'),
-          Text('Second minimum temperature: ${secondForecast['main']['temp_min']}'),
-          Text('Second maximum temperature: ${secondForecast['main']['temp_max']}'),
-          Text('Second humidity: ${secondForecast['main']['humidity']}'),
-          Text('Second wind speed: ${secondForecast['wind']['speed']}'),
-          Text('Second weather description: ${secondForecast['weather'][0]['description']}'),
+          // Text('First forecast date: $firstForecastDate'),
+          // Text('First minimum temperature: $minTemp'),
+          // Text('First maximum temperature: $maxTemp'),
+          // Text('First humidity: $humidity'),
+          // Text('First wind speed: $windSpeed'),
+          // Text('First weather description: $weatherDescription'),
+          // Text('Second forecast date: ${secondForecast['dt_txt']}'),
+          // Text('Second minimum temperature: ${secondForecast['main']['temp_min']}'),
+          // Text('Second maximum temperature: ${secondForecast['main']['temp_max']}'),
+          // Text('Second humidity: ${secondForecast['main']['humidity']}'),
+          // Text('Second wind speed: ${secondForecast['wind']['speed']}'),
+          // Text('Second weather description: ${secondForecast['weather'][0]['description']}'),
           // WeeklyForecastWidget(currentWeatherData: currentWeatherData),
         ],
       ),
@@ -127,7 +126,7 @@ Widget _buildWeatherContent() {
 }
 
 
-class CurrentWidget extends StatelessWidget{
+class CurrentWidget extends StatelessWidget {
   final Map<String, dynamic> currentWeatherData;
 
   CurrentWidget({required this.currentWeatherData});
@@ -140,15 +139,42 @@ class CurrentWidget extends StatelessWidget{
     final description = currentWeatherData['weather'][0]['description'];
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text('${time.hour}:${time.minute}'),
-        Image.network(iconUrl, width: 100, height: 100),
-        Text('$temperature°F'),
-        Text(description),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '$temperature°',
+              style: TextStyle(fontSize: 56, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              capitalizeFirstLetter(description.toString()),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            Image.network(iconUrl, width: 24, height: 24, fit: BoxFit.fill)
+          ],
+        ),
+        Text(
+          'Last Updated On: ${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+        ),
       ],
     );
   }
+}
 
+String capitalizeFirstLetter(String input) {
+  if (input.isEmpty) {
+    return input;
+  }
+  return input[0].toUpperCase() + input.substring(1);
 }
 
 class DetailsWidget extends StatelessWidget {
@@ -171,7 +197,6 @@ class DetailsWidget extends StatelessWidget {
       children: [
         SizedBox(
           width: 330,
-          height: 432,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -580,58 +605,216 @@ class DetailsWidget extends StatelessWidget {
 
 
 
-// class StylecastWidget extends StatelessWidget {
-//   final Map<String, dynamic> currentWeatherData;
+class StylecastWidget extends StatelessWidget {
+  final Map<String, dynamic> currentWeatherData;
 
-//   StylecastWidget({required this.currentWeatherData});
+  StylecastWidget({required this.currentWeatherData});
 
-//   @override
-//   Widget build(BuildContext context) {
-//     double minTemp = double.infinity;
-//     double maxTemp = double.negativeInfinity;
-//     // for (var hourData in forecastData.take(4)) {
-//     //   double temp = hourData['temp'].toDouble();
-//     //   if (temp < minTemp) minTemp = temp;
-//     //   if (temp > maxTemp) maxTemp = temp;
-//     // }
+  @override
+  Widget build(BuildContext context) {
+    final minTemp = currentWeatherData['main']['temp_min'].toStringAsFixed(0);
+    final maxTemp = currentWeatherData['main']['temp_max'].toStringAsFixed(0);    
 
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           'Stylecast for Next Hours',
-//           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//         ),
-//         Text(
-//           'Temperature from ${minTemp.toStringAsFixed(0)}°F to ${maxTemp.toStringAsFixed(0)}°F',
-//           style: TextStyle(fontSize: 16),
-//         ),
-//         SizedBox(height: 16),
-//         // SingleChildScrollView(
-//         //   scrollDirection: Axis.horizontal,
-//         //   child: Row(
-//         //     mainAxisAlignment: MainAxisAlignment.center,
-//         //     children: forecastData.take(4).map<Widget>((data) {
-//         //       return Padding(
-//         //         padding: const EdgeInsets.only(right: 16),
-//         //         child: Column(
-//         //           children: [
-//         //             Image.network(
-//         //               _getWeatherIconUrl(data['weather'][0]['icon']),
-//         //               width: 48,
-//         //               height: 48,
-//         //             ),
-//         //             Text('${data['temp'].toStringAsFixed(0)}°F'),
-//         //           ],
-//         //         ),
-//         //       );
-//         //     }).toList(),
-//         //   ),
-//         // ),
-//       ],
-//     );
-//   }
-// }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 330,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 330,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Stylecast',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontFamily: 'SF Pro',
+                        fontWeight: FontWeight.w600,
+                        height: 0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                clipBehavior: Clip.antiAlias,
+                decoration: ShapeDecoration(
+                  color: Color(0xFFF0F6FF),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 330,
+                      height: 20,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(color: Color(0xFFF0F6FF)),
+                    ),
+                    Container(
+                      width: 330,
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Today: $minTemp°F ~ $maxTemp°F',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14,
+                              fontFamily: 'SF Pro',
+                              fontWeight: FontWeight.w500,
+                              height: 0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      height: 17,
+                    ),
+                    Container(
+                      width: 330,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 42,
+                                  height: 42,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(                                      
+                                      image: Image.asset('assets/images/cardigan.png').image,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Cardigan',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12,
+                                    fontFamily: 'SF Pro',
+                                    fontWeight: FontWeight.w500,
+                                    height: 0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 25),
+                          Container(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 42,
+                                  height: 42,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(                                      
+                                      image: Image.asset('assets/images/tshirt.png').image,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'T-Shirt',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12,
+                                    fontFamily: 'SF Pro',
+                                    fontWeight: FontWeight.w500,
+                                    height: 0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 25),
+                          Container(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 42,
+                                  height: 42,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(                                      
+                                      image: Image.asset('assets/images/jeans.png').image,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Jeans',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12,
+                                    fontFamily: 'SF Pro',
+                                    fontWeight: FontWeight.w500,
+                                    height: 0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 330,
+                      height: 20,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(color: Color(0xFFF0F6FF)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 // class TodayForecastWidget extends StatelessWidget {
 //   final Map<String, dynamic> currentWeatherData;
