@@ -580,7 +580,7 @@ class FiveDaysWidget extends StatelessWidget {
                         color: Colors.black,
                         fontSize: 14,
                         fontFamily: 'SF Pro',
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         height: 0,
                       ),
                     ),
@@ -596,7 +596,6 @@ class FiveDaysWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(
-                      width: 22,
                       child: Text(
                         '$minTemp°',
                         textAlign: TextAlign.center,
@@ -614,7 +613,7 @@ class FiveDaysWidget extends StatelessWidget {
                       children: [
                         Container(
                           width: barWidth.toDouble(),
-                          height: 2,
+                          height: 4,
                           decoration: ShapeDecoration(
                             color: Color(0xFFD9D9D9),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
@@ -624,7 +623,7 @@ class FiveDaysWidget extends StatelessWidget {
                           left: calculatePosition(minTempValue, overallMinTemp, overallMaxTemp, barWidth).toDouble(),
                           child: Container(
                             width: calculateWidth(minTempValue, maxTempValue, overallMinTemp, overallMaxTemp, barWidth).toDouble(),
-                            height: 2,
+                            height: 4,
                             decoration: ShapeDecoration(
                               color: Colors.blue,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
@@ -635,7 +634,6 @@ class FiveDaysWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     SizedBox(
-                      width: 22,
                       child: Text(
                         '$maxTemp°',
                         textAlign: TextAlign.center,
