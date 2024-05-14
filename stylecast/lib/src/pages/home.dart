@@ -118,6 +118,8 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 40),
               Center(child: NextHoursWidget(forecastWeatherData: forecastWeatherDataList)),
               const SizedBox(height: 40),
+              Center(child: FiveDaysWidget(currentWeatherData: currentWeatherData, forecastWeatherData: forecastWeatherDataList)),
+              const SizedBox(height: 40),
               Center(child: DetailsWidget(currentWeatherData: currentWeatherData, forecastWeatherData: forecastWeatherDataList)),
             ],
           ),
@@ -399,7 +401,6 @@ class NextHoursWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 데이터가 충분한지 확인 (최소 8개 항목)
     if (forecastWeatherData.length < 8) {
       return const Center(child: Text('Not enough forecast data'));
     }
@@ -529,6 +530,194 @@ class NextHoursWidget extends StatelessWidget {
     );
   }
 }
+class FiveDaysWidget extends StatelessWidget {
+  final Map<String, dynamic> currentWeatherData;
+  final List<dynamic> forecastWeatherData;
+  late final List<List<dynamic>> dailyMinMax;
+  late final int overallMinTemp;
+  late final int overallMaxTemp;
+
+  FiveDaysWidget({required this.currentWeatherData, required this.forecastWeatherData}) {
+    dailyMinMax = getDailyMinMaxTemperatures(forecastWeatherData);
+
+    overallMinTemp = dailyMinMax.map((e) => e[1] as int).reduce((a, b) => a < b ? a : b);
+    overallMaxTemp = dailyMinMax.map((e) => e[2] as int).reduce((a, b) => a > b ? a : b);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const int barWidth = 86;
+
+    List<Widget> forecastWidgets = [];
+    forecastWidgets.add(const SizedBox(height: 24));
+    for (int i = 0; i < 5; i++) {
+      final date = DateFormat('MMM d').format(DateTime.parse(dailyMinMax[i][0].toString()));
+      final minTemp = dailyMinMax[i][1].toString();
+      final maxTemp = dailyMinMax[i][2].toString();
+      
+      final minTempValue = (dailyMinMax[i][1] as num).toInt();
+      final maxTempValue = (dailyMinMax[i][2] as num).toInt();
+
+      forecastWidgets.add(
+        Container(
+          width: 330,
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 80,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$date',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: 'SF Pro',
+                        fontWeight: FontWeight.w600,
+                        height: 0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 20),
+              Container(
+                height: 14,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 22,
+                      child: Text(
+                        '$minTemp°',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                          fontFamily: 'SF Pro',
+                          fontWeight: FontWeight.w500,
+                          height: 0,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Stack(
+                      children: [
+                        Container(
+                          width: barWidth.toDouble(),
+                          height: 2,
+                          decoration: ShapeDecoration(
+                            color: Color(0xFFD9D9D9),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                          ),
+                        ),
+                        Positioned(
+                          left: calculatePosition(minTempValue, overallMinTemp, overallMaxTemp, barWidth).toDouble(),
+                          child: Container(
+                            width: calculateWidth(minTempValue, maxTempValue, overallMinTemp, overallMaxTemp, barWidth).toDouble(),
+                            height: 2,
+                            decoration: ShapeDecoration(
+                              color: Colors.blue,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: 22,
+                      child: Text(
+                        '$maxTemp°',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                          fontFamily: 'SF Pro',
+                          fontWeight: FontWeight.w500,
+                          height: 0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      if (i < 4) {
+        forecastWidgets.add(const SizedBox(height: 24));
+      }
+    }
+    forecastWidgets.add(const SizedBox(height: 24));
+
+    return Column(
+      children: [
+        Container(
+          width: 330,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 330,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '5-day Forecast',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontFamily: 'SF Pro',
+                        fontWeight: FontWeight.bold,
+                        height: 0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                clipBehavior: Clip.antiAlias,
+                decoration: ShapeDecoration(
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: forecastWidgets,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+
 
 class DetailsWidget extends StatelessWidget {
   final Map<String, dynamic> currentWeatherData;
@@ -1010,13 +1199,9 @@ List<int> getTomorrowIndices(List<dynamic> weatherList, DateTime today) {
 }
 
 String formatTimeFromUnix(int dt) {
-  // UNIX 타임스탬프를 DateTime 객체로 변환하고 로컬 시간으로 변환
   DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(dt * 1000).toLocal();
-  
-  // 시간을 "h:mm a" 형식으로 변환
   String formattedTime = DateFormat.jm().format(dateTime);
   
-  // ":00"을 제거하되 "AM" 또는 "PM"을 유지
   if (formattedTime.endsWith(":00 AM")) {
     formattedTime = formattedTime.replaceAll(":00 AM", " AM");
   } else if (formattedTime.endsWith(":00 PM")) {
@@ -1033,7 +1218,6 @@ List<List<dynamic>> getDailyMinMaxTemperatures(List<dynamic> forecastWeatherData
     DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(item['dt'] * 1000).toLocal();
     String dateStr = DateFormat('yyyy-MM-dd').format(dateTime);
 
-    // temp_min과 temp_max를 double에서 int로 변환
     int tempMin = (item['main']['temp_min'] as num).toInt();
     int tempMax = (item['main']['temp_max'] as num).toInt();
 
@@ -1049,6 +1233,12 @@ List<List<dynamic>> getDailyMinMaxTemperatures(List<dynamic> forecastWeatherData
   dailyTemps.forEach((date, temps) {
     result.add([date, temps[0], temps[1]]);
   });
-  print(result);
   return result;
+}
+int calculatePosition(int temp, int overallMinTemp, int overallMaxTemp, int barWidth) {
+  return ((temp - overallMinTemp) * barWidth ~/ (overallMaxTemp - overallMinTemp)).toInt();
+}
+
+int calculateWidth(int minTemp, int maxTemp, int overallMinTemp, int overallMaxTemp, int barWidth) {
+  return ((maxTemp - minTemp) * barWidth ~/ (overallMaxTemp - overallMinTemp)).toInt();
 }
