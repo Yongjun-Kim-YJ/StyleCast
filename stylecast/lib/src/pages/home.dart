@@ -94,7 +94,7 @@ Widget _buildWeatherContent() {
         children: [
           const SizedBox(height: 30),
           Center(child:CurrentWidget(currentWeatherData: currentWeatherData)),
-          const SizedBox(height: 30),
+          const SizedBox(height: 60),
           Center (child: StylecastWidget(currentWeatherData: currentWeatherData)),
           const SizedBox(height: 24),
           Center(child: DetailsWidget(currentWeatherData: currentWeatherData)),
@@ -230,7 +230,7 @@ class DetailsWidget extends StatelessWidget {
               Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: ShapeDecoration(
-                  color: Color(0xFFF6F6F6),
+                  color: Color(0xFFF0F6FF),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -244,12 +244,12 @@ class DetailsWidget extends StatelessWidget {
                       width: 330,
                       height: 20,
                       clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(color: Color(0xFFF6F6F6)),
+                      decoration: BoxDecoration(color: Color(0xFFF0F6FF)),
                     ),
                     Container(
                       height: 363,
                       clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(color: Color(0xFFF6F6F6)),
+                      decoration: BoxDecoration(color: Color(0xFFF0F6FF)),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -266,7 +266,7 @@ class DetailsWidget extends StatelessWidget {
                               children: [
                                 Center(child:
                                   SizedBox(
-                                    width: 243,
+                                    width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -302,7 +302,7 @@ class DetailsWidget extends StatelessWidget {
                                 SizedBox(height: 25),
                                 Center(child:
                                   SizedBox(
-                                    width: 243,
+                                    width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -338,7 +338,7 @@ class DetailsWidget extends StatelessWidget {
                                 SizedBox(height: 25),
                                 Center(child:
                                   SizedBox(
-                                    width: 243,
+                                    width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -376,7 +376,7 @@ class DetailsWidget extends StatelessWidget {
 
                                 SizedBox(height: 25),
                                 Container(
-                                  width: 240,
+                                  width: 256,
                                   height: 1,
                                   decoration: const BoxDecoration(color: Color(0xFF1F1F1F)),
                                 ),
@@ -386,7 +386,7 @@ class DetailsWidget extends StatelessWidget {
 
                                 Center(child:
                                   SizedBox(
-                                    width: 243,
+                                    width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -422,7 +422,7 @@ class DetailsWidget extends StatelessWidget {
                                 SizedBox(height: 25),
                                 Center(child:
                                   SizedBox(
-                                    width: 243,
+                                    width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -458,7 +458,7 @@ class DetailsWidget extends StatelessWidget {
                                 SizedBox(height: 25),
                                 Center(child:
                                   SizedBox(
-                                    width: 243,
+                                    width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -494,7 +494,7 @@ class DetailsWidget extends StatelessWidget {
 
                                 SizedBox(height: 25),
                                 Container(
-                                  width: 240,
+                                  width: 256,
                                   height: 1,
                                   decoration: const BoxDecoration(color: Color(0xFF1F1F1F)),
                                 ),
@@ -504,7 +504,7 @@ class DetailsWidget extends StatelessWidget {
 
                                 Center(child:
                                   SizedBox(
-                                    width: 243,
+                                    width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -543,7 +543,7 @@ class DetailsWidget extends StatelessWidget {
 
                                 Center(child:
                                   SizedBox(
-                                    width: 243,
+                                    width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -648,7 +648,7 @@ class StylecastWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: ShapeDecoration(
