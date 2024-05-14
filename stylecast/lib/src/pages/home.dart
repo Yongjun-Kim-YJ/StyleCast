@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'weather_service.dart';  // Ensure this is correctly imported
 
@@ -42,26 +43,41 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const Icon(Icons.menu),
-        title: Text(
-          _currentWeatherData != null
-              ? '${_currentWeatherData!['name']}, ${_currentWeatherData!['sys']['country']}'
-              : 'Weather App',
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _fetchWeatherData,
+  return Scaffold(
+    backgroundColor: Colors.white,
+    appBar: AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      leading: const Icon(Icons.menu),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.location_on),
+          SizedBox(width: 8),
+          Text(
+            _currentWeatherData != null
+                ? '${_currentWeatherData!['name']}, ${_currentWeatherData!['sys']['country']}'
+                : 'Weather App',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            )
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _buildWeatherContent(),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          onPressed: _fetchWeatherData,
+        ),
+      ],
+    ),
+    body: _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : _buildWeatherContent(),
   );
 }
+
 
 Widget _buildWeatherContent() {
   if (_currentWeatherData == null) {
@@ -77,41 +93,34 @@ Widget _buildWeatherContent() {
     return const Center(child: Text('No forecast data available'));
   }
 
-  var firstForecast = forecastWeatherData[0]; // change this indext to get the forecast for the next hour
-  var secondForecast = forecastWeatherData[1];
-  var firstForecastDate = firstForecast['dt_txt'];
-  var minTemp = firstForecast['main']['temp_min']; // Convert from Kelvin to Celsius
-  var maxTemp = firstForecast['main']['temp_max']; // Convert from Kelvin to Celsius
-  var humidity = firstForecast['main']['humidity'];
-  var windSpeed = firstForecast['wind']['speed'];
-  var weatherDescription = firstForecast['weather'][0]['description'];
 
-  return SingleChildScrollView(
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 30),
-          Center(child:CurrentWidget(currentWeatherData: currentWeatherData)),
-          const SizedBox(height: 60),
-          Center (child: StylecastWidget(currentWeatherData: currentWeatherData)),
-          const SizedBox(height: 24),
-          Center(child: DetailsWidget(currentWeatherData: currentWeatherData)),
-          // Text('First forecast date: $firstForecastDate'),
-          // Text('First minimum temperature: $minTemp'),
-          // Text('First maximum temperature: $maxTemp'),
-          // Text('First humidity: $humidity'),
-          // Text('First wind speed: $windSpeed'),
-          // Text('First weather description: $weatherDescription'),
-          // Text('Second forecast date: ${secondForecast['dt_txt']}'),
-          // Text('Second minimum temperature: ${secondForecast['main']['temp_min']}'),
-          // Text('Second maximum temperature: ${secondForecast['main']['temp_max']}'),
-          // Text('Second humidity: ${secondForecast['main']['humidity']}'),
-          // Text('Second wind speed: ${secondForecast['wind']['speed']}'),
-          // Text('Second weather description: ${secondForecast['weather'][0]['description']}'),
-          // WeeklyForecastWidget(currentWeatherData: currentWeatherData),
-        ],
+  return Container(
+    decoration: BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment(-1, 0),
+      end: Alignment(1, 1),
+      colors: [
+        Colors.white,
+        Color.fromARGB(255, 223, 234, 255),
+      ],
+    ),
+  ),
+    child: SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 30),
+            Center(child:CurrentWidget(currentWeatherData: currentWeatherData)),
+            const SizedBox(height: 60),
+            Center (child: StylecastWidget(currentWeatherData: currentWeatherData)),
+            const SizedBox(height: 40),
+            Center(child: NextHoursWidget(forcastWeatherData: forecastWeatherData)),
+            const SizedBox(height: 40),
+            Center(child: DetailsWidget(currentWeatherData: currentWeatherData)),
+          ],
+        ),
       ),
     ),
   );
@@ -158,7 +167,7 @@ class CurrentWidget extends StatelessWidget {
               capitalizeFirstLetter(description.toString()),
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            Image.network(iconUrl, width: 24, height: 24, fit: BoxFit.fill)
+            Image.network(iconUrl, width: 32, height: 32, fit: BoxFit.fill)
           ],
         ),
         Text(
@@ -170,12 +179,6 @@ class CurrentWidget extends StatelessWidget {
   }
 }
 
-String capitalizeFirstLetter(String input) {
-  if (input.isEmpty) {
-    return input;
-  }
-  return input[0].toUpperCase() + input.substring(1);
-}
 
 class DetailsWidget extends StatelessWidget {
   final Map<String, dynamic> currentWeatherData;
@@ -214,13 +217,13 @@ class DetailsWidget extends StatelessWidget {
                       child: Text(
                         'Details',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontFamily: 'SF Pro',
-                          fontWeight: FontWeight.w600,
-                          height: 0,
-                        ),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontFamily: 'SF Pro',
+                            fontWeight: FontWeight.bold,
+                            height: 0,
+                          ),
                       ),
                     )
                   ],
@@ -230,7 +233,7 @@ class DetailsWidget extends StatelessWidget {
               Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: ShapeDecoration(
-                  color: Color(0xFFF0F6FF),
+                  color: Color(0xffffffff),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -244,12 +247,12 @@ class DetailsWidget extends StatelessWidget {
                       width: 330,
                       height: 20,
                       clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(color: Color(0xFFF0F6FF)),
+                      decoration: BoxDecoration(color: Color(0xffffffff)),
                     ),
                     Container(
                       height: 363,
                       clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(color: Color(0xFFF0F6FF)),
+                      decoration: BoxDecoration(color: Color(0xffffffff)),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -589,7 +592,7 @@ class DetailsWidget extends StatelessWidget {
                       width: 330,
                       height: 20,
                       clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(color: Color(0xFFF6F6F6)),
+                      decoration: BoxDecoration(color: Color(0xFFFfFfFf)),
                     ),
                   ],
                 ),
@@ -603,8 +606,6 @@ class DetailsWidget extends StatelessWidget {
 }
 
 
-
-
 class StylecastWidget extends StatelessWidget {
   final Map<String, dynamic> currentWeatherData;
 
@@ -613,8 +614,7 @@ class StylecastWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final minTemp = currentWeatherData['main']['temp_min'].toStringAsFixed(0);
-    final maxTemp = currentWeatherData['main']['temp_max'].toStringAsFixed(0);    
-
+    final maxTemp = currentWeatherData['main']['temp_max'].toStringAsFixed(0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -639,9 +639,9 @@ class StylecastWidget extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 16,
+                        fontSize: 20,
                         fontFamily: 'SF Pro',
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
                         height: 0,
                       ),
                     ),
@@ -652,7 +652,7 @@ class StylecastWidget extends StatelessWidget {
               Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: ShapeDecoration(
-                  color: Color(0xFFF0F6FF),
+                  color: Color(0xffffffff),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -666,7 +666,7 @@ class StylecastWidget extends StatelessWidget {
                       width: 330,
                       height: 20,
                       clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(color: Color(0xFFF0F6FF)),
+                      decoration: BoxDecoration(color: Color(0xffffffff)),
                     ),
                     Container(
                       width: 330,
@@ -677,7 +677,7 @@ class StylecastWidget extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            'Today: $minTemp°F ~ $maxTemp°F',
+                            '$minTemp°F ~ $maxTemp°F',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.black,
@@ -803,7 +803,7 @@ class StylecastWidget extends StatelessWidget {
                       width: 330,
                       height: 20,
                       clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(color: Color(0xFFF0F6FF)),
+                      decoration: BoxDecoration(color: Color(0xffffffff)),
                     ),
                   ],
                 ),
@@ -816,48 +816,524 @@ class StylecastWidget extends StatelessWidget {
   }
 }
 
-// class TodayForecastWidget extends StatelessWidget {
-//   final Map<String, dynamic> currentWeatherData;
 
-//   TodayForecastWidget({required this.currentWeatherData});
+class NextHoursWidget extends StatelessWidget {
+  final List<dynamic> forcastWeatherData;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           'Hourly Forecast',
-//           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//         ),
-//         Container(
-//           height: 100,
-//           child: ListView.builder(
-//             scrollDirection: Axis.horizontal,
-//             itemCount: forecastData.length,
-//             itemBuilder: (context, index) {
-//               final hourData = forecastData[index];
-//               final DateTime time = DateTime.fromMillisecondsSinceEpoch(hourData['dt'] * 1000);
-//               final iconUrl = 'https://openweathermap.org/img/wn/${hourData['weather'][0]['icon']}@2x.png';
-//               final temperature = hourData['temp'].toStringAsFixed(0);
+  NextHoursWidget({required this.forcastWeatherData});  
 
-//               return Container(
-//                 width: 80,
-//                 child: Column(
-//                   children: [
-//                     Text('${time.hour}:00', style: TextStyle(fontWeight: FontWeight.bold)),
-//                     Image.network(iconUrl, width: 50, height: 50),
-//                     Text('$temperature°F'),
-//                   ],
-//                 ),
-//               );
-//             },
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    final data0 = forcastWeatherData[0];
+    final data1 = forcastWeatherData[1];
+    final data2 = forcastWeatherData[2];
+    final data3 = forcastWeatherData[3];
+    final data4 = forcastWeatherData[4];
+    final data5 = forcastWeatherData[5];
+    final data6 = forcastWeatherData[6];
+    final data7 = forcastWeatherData[7];
+    final time0 = formatTimeFromUnix(data0['dt']);
+    final time1 = formatTimeFromUnix(data1['dt']);
+    final time2 = formatTimeFromUnix(data2['dt']);
+    final time3 = formatTimeFromUnix(data3['dt']);
+    final time4 = formatTimeFromUnix(data4['dt']);
+    final time5 = formatTimeFromUnix(data5['dt']);
+    final time6 = formatTimeFromUnix(data6['dt']);
+    final time7 = formatTimeFromUnix(data7['dt']);
+    final temp0 = data0['main']['temp'].toStringAsFixed(0);
+    final temp1 = data1['main']['temp'].toStringAsFixed(0);
+    final temp2 = data2['main']['temp'].toStringAsFixed(0);
+    final temp3 = data3['main']['temp'].toStringAsFixed(0);
+    final temp4 = data4['main']['temp'].toStringAsFixed(0);
+    final temp5 = data5['main']['temp'].toStringAsFixed(0);
+    final temp6 = data6['main']['temp'].toStringAsFixed(0);
+    final temp7 = data7['main']['temp'].toStringAsFixed(0);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 330,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 330,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 330,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 330,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Next Hours',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 20,
+                                    fontFamily: 'SF Pro',
+                                    fontWeight: FontWeight.bold,
+                                    height: 0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            clipBehavior: Clip.antiAlias,
+                            decoration: ShapeDecoration(
+                              color: Color(0xffffffff),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: 330,
+                                  height: 20,
+                                  clipBehavior: Clip.antiAlias,
+                                  decoration: BoxDecoration(color: Color(0xffffffff)),
+                                ),
+                                Container(
+                                  width: 330,
+                                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                                  clipBehavior: Clip.antiAlias,
+                                  decoration: BoxDecoration(color: Color(0xffffffff)),
+                                  child:
+                                    SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Row(
+                                        children: [
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 44,
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      '$time0',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Container(
+                                                      width: 30,
+                                                      height: 30,
+                                                      child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                        children: [
+                                                          Image.network('https://openweathermap.org/img/wn/${data0['weather'][0]['icon']}.png', width: 30, height: 30, fit: BoxFit.fill),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Text(
+                                                      '$temp0°',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 30),
+                                              Container(
+                                                width: 44,
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      '$time1',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Container(
+                                                      width: 30,
+                                                      height: 30,
+                                                      child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                        children: [
+                                                          Image.network('https://openweathermap.org/img/wn/${data1['weather'][0]['icon']}.png', width: 30, height: 30, fit: BoxFit.fill),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Text(
+                                                      '$temp1°',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 30),
+                                              Container(
+                                                width: 44,
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      '$time2',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Container(
+                                                      width: 30,
+                                                      height: 30,
+                                                      child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                        children: [
+                                                          Image.network('https://openweathermap.org/img/wn/${data2['weather'][0]['icon']}.png', width: 30, height: 30, fit: BoxFit.fill),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Text(
+                                                      '$temp2°',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 30),
+                                              Container(
+                                                width: 44,
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      '$time3',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Container(
+                                                      width: 30,
+                                                      height: 30,
+                                                      child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                        children: [
+                                                          Image.network('https://openweathermap.org/img/wn/${data3['weather'][0]['icon']}.png', width: 30, height: 30, fit: BoxFit.fill),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Text(
+                                                      '$temp3°',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 30),
+                                              Container(
+                                                width: 44,
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      '$time4',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Container(
+                                                      width: 30,
+                                                      height: 30,
+                                                      child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                        children: [
+                                                          Image.network('https://openweathermap.org/img/wn/${data4['weather'][0]['icon']}.png', width: 30, height: 30, fit: BoxFit.fill),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Text(
+                                                      '$temp4°',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 30),
+                                              Container(
+                                                width: 44,
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      '$time5',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Container(
+                                                      width: 30,
+                                                      height: 30,
+                                                      child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                        children: [
+                                                          Image.network('https://openweathermap.org/img/wn/${data5['weather'][0]['icon']}.png', width: 30, height: 30, fit: BoxFit.fill),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Text(
+                                                      '$temp5°',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 30),
+                                              Container(
+                                                width: 44,
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      '$time6',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Container(
+                                                      width: 30,
+                                                      height: 30,
+                                                      child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                        children: [
+                                                          Image.network('https://openweathermap.org/img/wn/${data6['weather'][0]['icon']}.png', width: 30, height: 30, fit: BoxFit.fill),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Text(
+                                                      '$temp6°',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 30),
+                                              Container(
+                                                width: 44,
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      '$time7',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Container(
+                                                      width: 30,
+                                                      height: 30,
+                                                      child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                        children: [
+                                                          Image.network('https://openweathermap.org/img/wn/${data7['weather'][0]['icon']}.png', width: 30, height: 30, fit: BoxFit.fill),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Text(
+                                                      '$temp7°',
+                                                      textAlign: TextAlign.center,
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                        fontFamily: 'SF Pro',
+                                                        fontWeight: FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  
+                                  
+                                ),
+                                Container(
+                                  width: 330,
+                                  height: 20,
+                                  clipBehavior: Clip.antiAlias,
+                                  decoration: BoxDecoration(color: Color(0xffffffff)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              )
+              
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 // class WeeklyForecastWidget extends StatelessWidget {
 //   final Map<String, dynamic> currentWeatherData;
@@ -899,6 +1375,67 @@ class StylecastWidget extends StatelessWidget {
 
 
 //Trying this out
-String geticonUrl(String iconCode) {
-  return 'https://openweathermap.org/img/wn/$iconCode@2x.png';
+// String geticonUrl(String iconCode) {
+//   return 'https://openweathermap.org/img/wn/$iconCode@2x.png';
+// }
+
+String capitalizeFirstLetter(String input) {
+  if (input.isEmpty) {
+    return input;
+  }
+  return input[0].toUpperCase() + input.substring(1);
+}
+
+List<int> getDistinctDateIndices(List<dynamic> weatherList) {
+  List<int> indices = [];
+  String? previousDate;
+
+  for (int i = 0; i < weatherList.length; i++) {
+    String currentDate = weatherList[i]['dt_txt'].split(' ')[0];
+    if (previousDate != currentDate) {
+      indices.add(i);
+      previousDate = currentDate;
+    }
+  }
+  return indices;
+}
+
+
+List<int> getTomorrowIndices(List<dynamic> weatherList, DateTime today) {
+  List<int> indices = [];
+  DateTime tomorrow = today.add(Duration(days: 1));
+  String tomorrowDateStr = tomorrow.toIso8601String().split('T')[0];
+
+  List<String> times = ['06:00:00', '09:00:00', '12:00:00', '15:00:00', '18:00:00', '21:00:00'];
+  int foundCount = 0;
+
+  for (int i = 0; i < weatherList.length; i++) {
+    String dtTxt = weatherList[i]['dt_txt'];
+    if (dtTxt.startsWith(tomorrowDateStr)) {
+      String time = dtTxt.split(' ')[1];
+      if (times.contains(time)) {
+        indices.add(i);
+        foundCount++;
+        if (foundCount == 6) break;
+      }
+    }
+  }
+  return indices;
+}
+
+String formatTimeFromUnix(int dt) {
+  // UNIX 타임스탬프를 DateTime 객체로 변환하고 로컬 시간으로 변환
+  DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(dt * 1000).toLocal();
+  
+  // 시간을 "h:mm a" 형식으로 변환
+  String formattedTime = DateFormat.jm().format(dateTime);
+  
+  // ":00"을 제거하되 "AM" 또는 "PM"을 유지
+  if (formattedTime.endsWith(":00 AM")) {
+    formattedTime = formattedTime.replaceAll(":00 AM", " AM");
+  } else if (formattedTime.endsWith(":00 PM")) {
+    formattedTime = formattedTime.replaceAll(":00 PM", " PM");
+  }
+  
+  return formattedTime;
 }
