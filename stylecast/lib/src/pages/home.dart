@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'weather_service.dart';  // Ensure this is correctly imported
+import 'weather_service.dart';
+import 'notification.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,22 +15,32 @@ class _HomePageState extends State<HomePage> {
   final WeatherService _weatherService = WeatherService();
 
   double latitude = 37.3382;
-  double longtitude = -121.8863;
+  double longitude = -121.8863;
   Map<String, dynamic>? _currentWeatherData;
   Map<String, dynamic>? _forecastWeatherData;
   bool _isLoading = true;
-
+  bool _isCelsius = true;
   @override
   void initState() {
+    Future.delayed(const Duration(seconds: 3),
+    FlutterLocalNotification.requestNotificationPermission());
+    super.initState();
+
     super.initState();
     _fetchWeatherData();
   }
 
   Future<void> _fetchWeatherData() async {
+    print(_isCelsius);
     try {
-      final currentWeatherData = await _weatherService.getCurrentWeather(latitude, longtitude);
-      final forecastWeatherData = await _weatherService.getForecastWeather(latitude, longtitude);
-      // Using hardcoded coordinates for San Jose, adjust as necessary
+      final currentWeatherData = _isCelsius
+          ? await _weatherService.getCurrentCelsiusWeather(latitude, longitude)
+          : await _weatherService.getCurrentWeather(latitude, longitude);
+
+      final forecastWeatherData = _isCelsius
+          ? await _weatherService.getForecastCelsiusWeather(latitude, longitude)
+          : await _weatherService.getForecastWeather(latitude, longitude);
+
       setState(() {
         _currentWeatherData = currentWeatherData;
         _forecastWeatherData = forecastWeatherData;
@@ -39,6 +51,13 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _toggleTemperatureUnit() {
+    setState(() {
+      _isCelsius = !_isCelsius;
+      _isLoading = true;
+    });
+    _fetchWeatherData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +66,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const Icon(Icons.menu),
+        // leading: const Icon(Icons.menu),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -64,6 +83,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -71,9 +91,116 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+
+      drawer: Drawer(
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              color: Color(0xFF2979FF),
+              padding: const EdgeInsets.all(30.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 100),
+                  Text(
+                    getGreeting(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Text(
+                    'Juhan 👋',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 40,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  SizedBox(height: 20),
+                  ListTile(
+                    leading: Icon(
+                      Icons.thermostat,
+                      color: Colors.grey[850],
+                    ),
+                    title: Text(
+                      'Temperature Preference',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onTap: () {
+                      _toggleTemperatureUnit();
+                      print('Temperature Preference is clicked');
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.location_on,
+                      color: Colors.grey[850],
+                    ),
+                    title: Text(
+                      'Location',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onTap: () {
+                      print('Location is clicked');
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.settings,
+                      color: Colors.grey[850],
+                    ),
+                    title: Text(
+                      'Settings',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onTap: () {
+                      print('Setting is clicked');
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.notifications_active,
+                      color: Colors.grey[850],
+                    ),
+                    title: Text(
+                      'Test Notification',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onTap: () {
+                      FlutterLocalNotification.showNotification(); // Corrected to call the method directly
+                      print('Test Notification is clicked');
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+
+
+
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _buildWeatherContent(),
+        ? const Center(child: CircularProgressIndicator())
+        : _buildWeatherContent(),
       );
   }
 
@@ -113,7 +240,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 30),
               Center(child: CurrentWidget(currentWeatherData: currentWeatherData)),
               const SizedBox(height: 60),
-              Center(child: StylecastWidget(currentWeatherData: currentWeatherData, forecastWeatherData: forecastWeatherDataList)),
+              Center(child: StylecastWidget(currentWeatherData: currentWeatherData, forecastWeatherData: forecastWeatherDataList, isCelsius: _isCelsius)),
               const SizedBox(height: 40),
               Center(child: NextHoursWidget(forecastWeatherData: forecastWeatherDataList)),
               const SizedBox(height: 40),
@@ -176,27 +303,25 @@ class CurrentWidget extends StatelessWidget {
   }
 }
 
-
 class StylecastWidget extends StatelessWidget {
   final Map<String, dynamic> currentWeatherData;
   final List<dynamic> forecastWeatherData;
+  final bool isCelsius;
   late final List<List<dynamic>> dailyMinMax;
   late final todayMinTemp;
   late final todayMaxTemp;
   late final int currentTemp;
 
-  StylecastWidget({required this.currentWeatherData, required this.forecastWeatherData}) {
+  StylecastWidget({required this.currentWeatherData, required this.forecastWeatherData, required this.isCelsius}) {
     dailyMinMax = getDailyMinMaxTemperatures(forecastWeatherData);
     currentTemp = (currentWeatherData['main']['temp'] as num).toInt();
     todayMinTemp = dailyMinMax[0][1];
     todayMaxTemp = dailyMinMax[0][2];
   }
 
-
   @override
   Widget build(BuildContext context) {
-
-    List<ClothingItem> recommendedClothes = recommendClothes(currentTemp);
+    List<ClothingItem> recommendedClothes = recommendClothes(currentTemp, isCelsius);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,6 +459,7 @@ class StylecastWidget extends StatelessWidget {
     );
   }
 }
+
 
 
 class NextHoursWidget extends StatelessWidget {
@@ -1177,6 +1303,24 @@ List<List<dynamic>> getDailyMinMaxTemperatures(List<dynamic> forecastWeatherData
   return result;
 }
 
+String getGreeting() {
+  final now = DateTime.now();
+  final hour = now.hour;
+
+  if (hour < 6) {
+    return "Good Night,";
+  } else if (hour < 12) {
+    return "Good Morning,";
+  } else if (hour < 18) {
+    return "Good Afternoon,";
+  } else if (hour < 21) {
+    return "Good Evening,";
+  } else {
+    return "Good Night,";
+  }
+}
+
+
 int calculatePosition(int temp, int overallMinTemp, int overallMaxTemp, int barWidth) {
   return ((temp - overallMinTemp) * barWidth ~/ (overallMaxTemp - overallMinTemp)).toInt();
 }
@@ -1185,19 +1329,22 @@ int calculateWidth(int minTemp, int maxTemp, int overallMinTemp, int overallMaxT
   return ((maxTemp - minTemp) * barWidth ~/ (overallMaxTemp - overallMinTemp)).toInt();
 }
 
-List<ClothingItem> recommendClothes(int currentTemp) {
+List<ClothingItem> recommendClothes(int currentTemp, bool isCelsius) {
   String weather;
-  if (currentTemp >= 85) {
+  num tempInFahrenheit = isCelsius ? (currentTemp * 9/5) + 32 : currentTemp;
+  print('Temp in Fahrenheit: $tempInFahrenheit');
+  if (tempInFahrenheit >= 85) {
     weather = 'hot';
-  } else if (currentTemp >= 70) {
+  } else if (tempInFahrenheit >= 70) {
     weather = 'warm';
-  } else if (currentTemp >= 55) {
+  } else if (tempInFahrenheit >= 45) {
     weather = 'moderate';
-  } else if (currentTemp >= 40) {
-    weather = 'cool';
-  } else {
+  } else if (tempInFahrenheit >= 30) {
     weather = 'cold';
+  } else {
+    weather = 'freezing';
   }
+  print('Weather: $weather');
 
   List<ClothingItem> recommendedItems = [];
   for (var item in clothingItems) {
@@ -1219,6 +1366,7 @@ List<ClothingItem> recommendClothes(int currentTemp) {
 
   return result;
 }
+
 
 
 
@@ -1247,6 +1395,7 @@ List<ClothingItem> clothingItems = [
   ClothingItem('bottom', 'freezing', 'Jean', 'assets/images/clothes/jeans.png'),
   ClothingItem('extra', 'hot', 'Sunglasses', 'assets/images/clothes/sunglasses.png'),
   ClothingItem('extra', 'warm', 'Cap', 'assets/images/clothes/cap.png'),
-  ClothingItem('extra', 'cold', 'Muffler', 'assets/images/clothes/muffler.png'),
+  // ClothingItem('extra', 'cold', 'Muffler', 'assets/images/clothes/muffler.png'),
   ClothingItem('extra', 'freezing', 'Gloves', 'assets/images/clothes/winter-gloves.png'),
 ];
+

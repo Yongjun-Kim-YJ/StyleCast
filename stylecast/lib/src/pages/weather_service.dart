@@ -18,9 +18,33 @@ class WeatherService {
     }
   }
 
+  Future<Map<String, dynamic>> getCurrentCelsiusWeather(double lat, double lon) async {
+    final response = await http.get(
+      Uri.parse("$baseUrl/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric"),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load weather data');
+    }
+  }
+
   Future<Map<String, dynamic>> getForecastWeather(double lat, double lon) async {
     final response = await http.get(
       Uri.parse("$baseUrl/forecast?lat=$lat&lon=$lon&appid=$apiKey&units=imperial"),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load weather data');
+    }
+  }
+
+  Future<Map<String, dynamic>> getForecastCelsiusWeather(double lat, double lon) async {
+    final response = await http.get(
+      Uri.parse("$baseUrl/forecast?lat=$lat&lon=$lon&appid=$apiKey&units=metric"),
     );
 
     if (response.statusCode == 200) {
