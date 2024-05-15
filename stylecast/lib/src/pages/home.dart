@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const Icon(Icons.menu),
+        // leading: const Icon(Icons.menu),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -64,6 +64,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -71,7 +72,45 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: _isLoading
+
+      drawer: Drawer(
+          child: ListView(
+            children: [
+              ListTile(
+                leading: Icon(
+                  Icons.thermostat,
+                  color: Colors.grey[850],
+                ),
+                title: Text('Temperature Preference'),
+                onTap: () {
+                  print('Temperauter Preference is clicked');
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.location_on,
+                  color: Colors.grey[850],
+                ),
+                title: Text('Location'),
+                onTap: () {
+                  print('Location is clicked');
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.settings,
+                  color: Colors.grey[850],
+                ),
+                title: Text('Setting'),
+                onTap: () {
+                  print('Setting is clicked');
+                },
+              ),
+            ],
+          ),
+        ),
+
+        body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _buildWeatherContent(),
       );
