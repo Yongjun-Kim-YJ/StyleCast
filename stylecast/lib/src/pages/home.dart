@@ -74,45 +74,84 @@ class _HomePageState extends State<HomePage> {
       ),
 
       drawer: Drawer(
-          child: ListView(
-            children: [
-              ListTile(
-                leading: Icon(
-                  Icons.thermostat,
-                  color: Colors.grey[850],
-                ),
-                title: Text('Temperature Preference'),
-                onTap: () {
-                  print('Temperauter Preference is clicked');
-                },
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.location_on,
-                  color: Colors.grey[850],
-                ),
-                title: Text('Location'),
-                onTap: () {
-                  print('Location is clicked');
-                },
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.settings,
-                  color: Colors.grey[850],
-                ),
-                title: Text('Setting'),
-                onTap: () {
-                  print('Setting is clicked');
-                },
-              ),
-            ],
-          ),
-        ),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              color: Color(0xFF2979FF),
+              padding: const EdgeInsets.all(30.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 80),
+                  Text(
+                    'Good Morning,',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
 
-        body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _buildWeatherContent(),
+                  Text(
+                    'Juhan 👋',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 40,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  SizedBox(height: 20),
+                  ListTile(
+                    leading: Icon(
+                      Icons.thermostat,
+                      color: Colors.grey[850],
+                    ),
+                    title: Text('Temperature Preference'),
+                    onTap: () {
+                      print('Temperature Preference is clicked');
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.location_on,
+                      color: Colors.grey[850],
+                    ),
+                    title: Text('Location'),
+                    onTap: () {
+                      print('Location is clicked');
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.settings,
+                      color: Colors.grey[850],
+                    ),
+                    title: Text('Setting'),
+                    onTap: () {
+                      print('Setting is clicked');
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+
+
+
+      body: _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : _buildWeatherContent(),
       );
   }
 
