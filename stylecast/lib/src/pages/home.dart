@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'weather_service.dart';
 import 'notification.dart';
+import 'settings_page.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -58,6 +59,34 @@ class _HomePageState extends State<HomePage> {
     });
     _fetchWeatherData();
   }
+
+
+void _showNotification() {
+  if (_currentWeatherData != null) {
+    final currentTemp = (_currentWeatherData!['main']['temp'] as num).toInt();
+    final recommendedClothes = recommendClothes(currentTemp, _isCelsius);
+
+    // Convert list to string with "and" before the last element
+    String clothesList;
+    if (recommendedClothes.length > 1) {
+      clothesList = '${recommendedClothes
+          .sublist(0, recommendedClothes.length - 1)
+          .map((item) => item.name)
+          .join(', ')} and ${recommendedClothes.last.name}';
+    } else if (recommendedClothes.isNotEmpty) {
+      clothesList = recommendedClothes.first.name;
+    } else {
+      clothesList = 'nothing special';
+    }
+
+    FlutterLocalNotification.showNotification(
+      'Stylecast',
+      'It\'s $currentTemp° today. Wear $clothesList.',
+    );
+  } else {
+    print('Current weather data is not available');
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +199,11 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onTap: () {
-                      print('Setting is clicked');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SettingsPage()),
+                      );
+                      print('Settings is clicked');
                     },
                   ),
                   ListTile(
@@ -185,7 +218,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onTap: () {
-                      FlutterLocalNotification.showNotification(); // Corrected to call the method directly
+                      _showNotification();
                       print('Test Notification is clicked');
                     },
                   ),

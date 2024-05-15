@@ -36,7 +36,7 @@ class FlutterLocalNotification {
         );
   }
 
-  static Future<void> showNotification() async {
+static Future<void> showNotification(String title, String body) async {
     const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails('channel id', 'channel name',
             channelDescription: 'channel description',
@@ -49,6 +49,10 @@ class FlutterLocalNotification {
         iOS: DarwinNotificationDetails(badgeNumber: 1));
 
     await flutterLocalNotificationsPlugin.show(
-        0, 'test title', 'test body', notificationDetails);
+        0, 
+        title, 
+        body, 
+        notificationDetails
+    );
   }
 }
