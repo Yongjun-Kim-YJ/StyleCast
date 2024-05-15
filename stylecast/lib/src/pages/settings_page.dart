@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatelessWidget {
+  final VoidCallback myFunction;
+  SettingsPage({required this.myFunction});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings'),
       ),
       body: Column(
         children: [
@@ -134,7 +136,58 @@ class SettingsPage extends StatelessWidget {
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () {
                         print('Units tapped');
-                        // 원하는 동작 추가
+                        myFunction();
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0)
+                              ),
+                              backgroundColor: Colors.white,
+                                //Dialog Main Title
+                              title: const Column(
+                                children: <Widget>[
+                                  Text(
+                                    "Unit Changed!",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 24,
+                                      fontFamily: 'SF Pro',
+                                      fontWeight: FontWeight.w400,
+                                      height: 0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              content: const Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children:[
+                                  SizedBox(height: 16),
+                                  Text("The temperature unit has been changed.",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 20,
+                                    fontFamily: 'SF Pro',
+                                    fontWeight: FontWeight.w400,
+                                    height: 0,
+                                  ),
+                              ),
+                                ]),
+
+                               
+                              actions: [
+                                TextButton(
+                                  child: const Text("OK"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
                     ),
                   ),

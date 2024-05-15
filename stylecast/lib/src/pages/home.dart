@@ -26,8 +26,6 @@ class _HomePageState extends State<HomePage> {
     Future.delayed(const Duration(seconds: 3),
     FlutterLocalNotification.requestNotificationPermission());
     super.initState();
-
-    super.initState();
     _fetchWeatherData();
   }
 
@@ -201,7 +199,7 @@ void _showNotification() {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SettingsPage()),
+                        MaterialPageRoute(builder: (context) => SettingsPage(myFunction: _toggleTemperatureUnit,)),
                       );
                       print('Settings is clicked');
                     },
