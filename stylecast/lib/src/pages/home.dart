@@ -114,7 +114,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 30),
               Center(child: CurrentWidget(currentWeatherData: currentWeatherData)),
               const SizedBox(height: 60),
-              Center(child: StylecastWidget(forecastWeatherData: forecastWeatherDataList)),
+              Center(child: StylecastWidget(currentWeatherData: currentWeatherData, forecastWeatherData: forecastWeatherDataList)),
               const SizedBox(height: 40),
               Center(child: NextHoursWidget(forecastWeatherData: forecastWeatherDataList)),
               const SizedBox(height: 40),
@@ -177,22 +177,27 @@ class CurrentWidget extends StatelessWidget {
   }
 }
 
+
 class StylecastWidget extends StatelessWidget {
+  final Map<String, dynamic> currentWeatherData;
   final List<dynamic> forecastWeatherData;
   late final List<List<dynamic>> dailyMinMax;
+  late final todayMinTemp;
+  late final todayMaxTemp;
+  late final int currentTemp;
 
-  StylecastWidget({required this.forecastWeatherData}) {
+  StylecastWidget({required this.currentWeatherData, required this.forecastWeatherData}) {
     dailyMinMax = getDailyMinMaxTemperatures(forecastWeatherData);
+    currentTemp = (currentWeatherData['main']['temp'] as num).toInt();
+    todayMinTemp = dailyMinMax[0][1];
+    todayMaxTemp = dailyMinMax[0][2];
   }
+
 
   @override
   Widget build(BuildContext context) {
-    final minTemp = forecastWeatherData.isNotEmpty
-        ? dailyMinMax[0][1].toString()
-        : 'N/A';
-    final maxTemp = forecastWeatherData.isNotEmpty
-        ? dailyMinMax[0][2].toString()
-        : 'N/A';
+
+    List<ClothingItem> recommendedClothes = recommendClothes(currentTemp);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +221,7 @@ class StylecastWidget extends StatelessWidget {
                       'Stylecast',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Colors.blue.shade900,
                         fontSize: 20,
                         fontFamily: 'SF Pro',
                         fontWeight: FontWeight.bold,
@@ -255,10 +260,10 @@ class StylecastWidget extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            '$minTemp° ~ $maxTemp°',
+                            '$todayMinTemp° ~ $todayMaxTemp°',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Colors.blue.shade800,
+                              color: Colors.black,
                               fontSize: 14,
                               fontFamily: 'SF Pro',
                               fontWeight: FontWeight.bold,
@@ -278,8 +283,9 @@ class StylecastWidget extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
+                        children: recommendedClothes.map((item) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -290,14 +296,14 @@ class StylecastWidget extends StatelessWidget {
                                   height: 42,
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
-                                      image: Image.asset('assets/images/cardigan.png').image,
+                                      image: Image.asset(item.imagePath).image,
                                       fit: BoxFit.fill,
                                     ),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Cardigan',
+                                  item.name,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Colors.black,
@@ -309,72 +315,8 @@ class StylecastWidget extends StatelessWidget {
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(width: 25),
-                          Container(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 42,
-                                  height: 42,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: Image.asset('assets/images/tshirt.png').image,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'T-Shirt',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12,
-                                    fontFamily: 'SF Pro',
-                                    fontWeight: FontWeight.w500,
-                                    height: 0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 25),
-                          Container(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 42,
-                                  height: 42,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: Image.asset('assets/images/jeans.png').image,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Jeans',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12,
-                                    fontFamily: 'SF Pro',
-                                    fontWeight: FontWeight.w500,
-                                    height: 0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                          );
+                        }).toList(),
                       ),
                     ),
                     Container(
@@ -393,6 +335,7 @@ class StylecastWidget extends StatelessWidget {
     );
   }
 }
+
 
 class NextHoursWidget extends StatelessWidget {
   final List<dynamic> forecastWeatherData;
@@ -431,7 +374,7 @@ class NextHoursWidget extends StatelessWidget {
                       'Next Hours',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Colors.blue.shade900,
                         fontSize: 20,
                         fontFamily: 'SF Pro',
                         fontWeight: FontWeight.bold,
@@ -530,6 +473,8 @@ class NextHoursWidget extends StatelessWidget {
     );
   }
 }
+
+
 class FiveDaysWidget extends StatelessWidget {
   final Map<String, dynamic> currentWeatherData;
   final List<dynamic> forecastWeatherData;
@@ -681,7 +626,7 @@ class FiveDaysWidget extends StatelessWidget {
                       '5-day Forecast',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Colors.blue.shade900,
                         fontSize: 20,
                         fontFamily: 'SF Pro',
                         fontWeight: FontWeight.bold,
@@ -714,7 +659,6 @@ class FiveDaysWidget extends StatelessWidget {
     );
   }
 }
-
 
 
 class DetailsWidget extends StatelessWidget {
@@ -763,7 +707,7 @@ class DetailsWidget extends StatelessWidget {
                         'Details',
                         textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Colors.blue.shade900,
                             fontSize: 20,
                             fontFamily: 'SF Pro',
                             fontWeight: FontWeight.bold,
@@ -1240,3 +1184,69 @@ int calculatePosition(int temp, int overallMinTemp, int overallMaxTemp, int barW
 int calculateWidth(int minTemp, int maxTemp, int overallMinTemp, int overallMaxTemp, int barWidth) {
   return ((maxTemp - minTemp) * barWidth ~/ (overallMaxTemp - overallMinTemp)).toInt();
 }
+
+List<ClothingItem> recommendClothes(int currentTemp) {
+  String weather;
+  if (currentTemp >= 85) {
+    weather = 'hot';
+  } else if (currentTemp >= 70) {
+    weather = 'warm';
+  } else if (currentTemp >= 55) {
+    weather = 'moderate';
+  } else if (currentTemp >= 40) {
+    weather = 'cool';
+  } else {
+    weather = 'cold';
+  }
+
+  List<ClothingItem> recommendedItems = [];
+  for (var item in clothingItems) {
+    if (item.weather == weather) {
+      recommendedItems.add(item);
+    }
+  }
+
+  List<ClothingItem> result = [];
+  for (var type in ['outerwear', 'top', 'bottom', 'extra']) {
+    var clothingItem = recommendedItems.firstWhere(
+      (item) => item.type == type,
+      orElse: () => ClothingItem(type, weather, 'None', 'assets/images/default.png'),
+    );
+    if (clothingItem.name != 'None') {
+      result.add(clothingItem);
+    }
+  }
+
+  return result;
+}
+
+
+
+class ClothingItem {
+  final String type;
+  final String weather;
+  final String name;
+  final String imagePath;
+
+  ClothingItem(this.type, this.weather, this.name, this.imagePath);
+}
+
+List<ClothingItem> clothingItems = [
+  ClothingItem('outerwear', 'moderate', 'Cardigan', 'assets/images/clothes/cardigan.png'),
+  ClothingItem('outerwear', 'cold', 'Jacket', 'assets/images/clothes/denim-jacket.png'),
+  ClothingItem('outerwear', 'freezing', 'Winter jacket', 'assets/images/clothes/jacket.png'),
+  ClothingItem('top', 'hot', 'T-shirt', 'assets/images/clothes/t-shirt.png'),
+  ClothingItem('top', 'warm', 'Polo shirt', 'assets/images/clothes/polo-shirt.png'),
+  ClothingItem('top', 'moderate', 'Shirt', 'assets/images/clothes/cloth.png'),
+  ClothingItem('top', 'cold', 'Sweater', 'assets/images/clothes/sweater.png'),
+  ClothingItem('top', 'freezing', 'Hoodie', 'assets/images/clothes/hoodie.png'),
+  ClothingItem('bottom', 'hot', 'Short pants', 'assets/images/clothes/shorts.png'),
+  ClothingItem('bottom', 'warm', 'Jean', 'assets/images/clothes/jeans.png'),
+  ClothingItem('bottom', 'moderate', 'Jean', 'assets/images/clothes/jeans.png'),
+  ClothingItem('bottom', 'cold', 'Jean', 'assets/images/clothes/jeans.png'),
+  ClothingItem('bottom', 'freezing', 'Jean', 'assets/images/clothes/jeans.png'),
+  ClothingItem('extra', 'hot', 'Sunglasses', 'assets/images/clothes/sunglasses.png'),
+  ClothingItem('extra', 'warm', 'Cap', 'assets/images/clothes/cap.png'),
+  ClothingItem('extra', 'cold', 'Muffler', 'assets/images/clothes/muffler.png'),
+  ClothingItem('extra', 'freezing', 'Gloves', 'assets/images/clothes/winter-gloves.png'),
+];
