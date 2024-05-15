@@ -83,23 +83,20 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 80),
+                  const SizedBox(height: 100),
                   Text(
-                    'Good Morning,',
+                    getGreeting(),
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 28,
-                      fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-
                   Text(
                     'Juhan 👋',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 40,
-                      fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -115,7 +112,12 @@ class _HomePageState extends State<HomePage> {
                       Icons.thermostat,
                       color: Colors.grey[850],
                     ),
-                    title: Text('Temperature Preference'),
+                    title: Text(
+                      'Temperature Preference',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     onTap: () {
                       print('Temperature Preference is clicked');
                     },
@@ -125,7 +127,12 @@ class _HomePageState extends State<HomePage> {
                       Icons.location_on,
                       color: Colors.grey[850],
                     ),
-                    title: Text('Location'),
+                    title: Text(
+                      'Location',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     onTap: () {
                       print('Location is clicked');
                     },
@@ -135,7 +142,12 @@ class _HomePageState extends State<HomePage> {
                       Icons.settings,
                       color: Colors.grey[850],
                     ),
-                    title: Text('Setting'),
+                    title: Text(
+                      'Settings',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     onTap: () {
                       print('Setting is clicked');
                     },
@@ -1255,6 +1267,24 @@ List<List<dynamic>> getDailyMinMaxTemperatures(List<dynamic> forecastWeatherData
   return result;
 }
 
+String getGreeting() {
+  final now = DateTime.now();
+  final hour = now.hour;
+
+  if (hour < 6) {
+    return "Good Night,";
+  } else if (hour < 12) {
+    return "Good Morning,";
+  } else if (hour < 18) {
+    return "Good Afternoon,";
+  } else if (hour < 21) {
+    return "Good Evening,";
+  } else {
+    return "Good Night,";
+  }
+}
+
+
 int calculatePosition(int temp, int overallMinTemp, int overallMaxTemp, int barWidth) {
   return ((temp - overallMinTemp) * barWidth ~/ (overallMaxTemp - overallMinTemp)).toInt();
 }
@@ -1328,3 +1358,4 @@ List<ClothingItem> clothingItems = [
   ClothingItem('extra', 'cold', 'Muffler', 'assets/images/clothes/muffler.png'),
   ClothingItem('extra', 'freezing', 'Gloves', 'assets/images/clothes/winter-gloves.png'),
 ];
+
