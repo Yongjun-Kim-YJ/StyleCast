@@ -1177,6 +1177,7 @@ List<List<dynamic>> getDailyMinMaxTemperatures(List<dynamic> forecastWeatherData
   });
   return result;
 }
+
 int calculatePosition(int temp, int overallMinTemp, int overallMaxTemp, int barWidth) {
   return ((temp - overallMinTemp) * barWidth ~/ (overallMaxTemp - overallMinTemp)).toInt();
 }
@@ -1210,7 +1211,7 @@ List<ClothingItem> recommendClothes(int currentTemp) {
   for (var type in ['outerwear', 'top', 'bottom', 'extra']) {
     var clothingItem = recommendedItems.firstWhere(
       (item) => item.type == type,
-      orElse: () => ClothingItem(type, weather, 'None', 'assets/images/default.png'),
+      orElse: () => ClothingItem(type, weather, 'None', 'assets/images/account_created.png'),
     );
     if (clothingItem.name != 'None') {
       result.add(clothingItem);
