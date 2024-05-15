@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'weather_service.dart';  // Ensure this is correctly imported
+import 'weather_service.dart';
+import 'notification.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,6 +22,10 @@ class _HomePageState extends State<HomePage> {
   bool _isCelsius = true;
   @override
   void initState() {
+    Future.delayed(const Duration(seconds: 3),
+    FlutterLocalNotification.requestNotificationPermission());
+    super.initState();
+
     super.initState();
     _fetchWeatherData();
   }
@@ -165,6 +171,22 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onTap: () {
                       print('Setting is clicked');
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.notifications_active,
+                      color: Colors.grey[850],
+                    ),
+                    title: Text(
+                      'Test Notification',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onTap: () {
+                      FlutterLocalNotification.showNotification(); // Corrected to call the method directly
+                      print('Test Notification is clicked');
                     },
                   ),
                 ],
