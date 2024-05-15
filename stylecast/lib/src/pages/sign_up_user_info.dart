@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:stylecast/src/pages/sign_up_complete.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class SignUpUserInfoScreen extends StatefulWidget {
   @override
@@ -12,12 +15,21 @@ class _SignUpUserInfoScreenState extends State<SignUpUserInfoScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  void _navigateToSignUpComplete() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => SignUpCompleteScreen(),
-      ),
-    );
+  void _navigateToSignUpComplete() async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        await user.updatePassword(_passwordController.text.trim());
+      }
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => SignUpCompleteScreen(),
+        ),
+      );
+    } catch (e) {
+      // 에러 처리
+      print(e);
+    }
   }
 
   @override

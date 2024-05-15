@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:stylecast/src/pages/sign_up_verification.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -11,13 +14,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
-  void _navigateToEmailVerification() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) =>
-            EmailVerificationScreen(email: _emailController.text.trim()),
-      ),
-    );
+  void _navigateToEmailVerification() async {
+    try {
+      await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: 'temporary_password', // 임시 비밀번호 사용
+      );
+
+      // 이메일 인증 요청 보내기
+      User? user = _auth.currentUser;
+      if (user != null) {
+        await user.sendEmailVerification();
+      }
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) =>
+              EmailVerificationScreen(email: _emailController.text.trim()),
+        ),
+      );
+    } catch (e) {
+      // 에러 처리
+      print(e);
+    }
   }
 
   @override

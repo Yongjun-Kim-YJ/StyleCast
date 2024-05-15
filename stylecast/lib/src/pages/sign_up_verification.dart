@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stylecast/src/pages/sign_up_user_info.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class EmailVerificationScreen extends StatefulWidget {
   final String email;
@@ -13,15 +17,71 @@ class EmailVerificationScreen extends StatefulWidget {
 }
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
-  final TextEditingController _codeController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  String _verificationId = "";
+  bool _isEmailVerified = false;
+  bool _isResendButtonDisabled = false;
+  late StreamSubscription<User?> _authStateChangesSubscription;
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
     _sendVerificationEmail();
+    _authStateChangesSubscription = _auth.authStateChanges().listen((user) {
+      setState(() {
+        _isEmailVerified = user?.emailVerified ?? false;
+      });
+    });
+    _startTimer();
   }
+
+  @override
+  void dispose() {
+    _authStateChangesSubscription.cancel();
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _timer = Timer(Duration(seconds: 20), () {
+      setState(() {
+        _isEmailVerified = true;
+      });
+    });
+  }
+
+  void _sendVerificationEmail() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      await user.sendEmailVerification();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Verification email sent to ${widget.email}')),
+      );
+      setState(() {
+        _isResendButtonDisabled = true;
+      });
+      await Future.delayed(Duration(seconds: 10)); // Disable for 10 seconds
+      setState(() {
+        _isResendButtonDisabled = false;
+      });
+    }
+  }
+
+  // void _checkEmailVerified() async {
+  //   User? user = _auth.currentUser;
+  //   await user?.reload();
+  //   user = _auth.currentUser;
+  //   setState(() {
+  //     _isEmailVerified = user?.emailVerified ?? false;
+  //   });
+  //   if (_isEmailVerified) {
+  //     _navigateToUserInfo();
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Email not verified. Please check your email.')),
+  //     );
+  //   }
+  // }
 
   void _navigateToUserInfo() {
     Navigator.of(context).push(
@@ -30,8 +90,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       ),
     );
   }
-
-  void _sendVerificationEmail() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +227,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
             Align(
               alignment: Alignment.center,
               child: TextButton(
-                onPressed: () {},
+                onPressed:
+                    _isResendButtonDisabled ? null : _sendVerificationEmail,
                 child: Text(
                   "Resend Email",
                   textAlign: TextAlign.center,
@@ -178,7 +237,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     letterSpacing: -0.5,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
-                    color: Color(0xFF2979FF),
+                    color: _isResendButtonDisabled
+                        ? Colors.grey
+                        : Color(0xFF2979FF),
                   ),
                 ),
               ),
@@ -187,12 +248,12 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
             Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
-                onTap: _navigateToUserInfo,
+                onTap: _isEmailVerified ? _navigateToUserInfo : null,
                 child: Container(
                   width: 114,
                   height: 46,
                   decoration: BoxDecoration(
-                    color: Color(0xFF2979FF),
+                    color: _isEmailVerified ? Color(0xFF2979FF) : Colors.grey,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
