@@ -266,10 +266,10 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildWeatherContent() {
     if (_currentWeatherData == null) {
-      return const Center(child: Text('Error loading weather data'));
+      return const Center(child: Text('Loading weather data'));
     }
     if (_forecastWeatherData == null) {
-      return const Center(child: Text('Error loading forecast data'));
+      return const Center(child: Text('Loading forecast data'));
     }
 
     var currentWeatherData = _currentWeatherData!;
