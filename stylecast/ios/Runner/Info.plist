@@ -45,6 +45,10 @@
 	<string>32e5b39cd79c090b77fca502ba0ce732</string>
 	<key>FacebookDisplayName</key>
 	<string>StyleCast</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location when in the background.</string>
 
 	<key>LSApplicationQueriesSchemes</key>
 	<array>

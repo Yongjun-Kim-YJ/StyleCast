@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'location.dart';
 import 'weather_service.dart';
 import 'notification.dart';
 import 'settings.dart';
@@ -186,6 +187,11 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => LocationSettingsScreen()),
+                      );
                       print('Location is clicked');
                     },
                   ),
