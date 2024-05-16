@@ -128,9 +128,7 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
                       ),
                       trailing: PopupMenuButton<String>(
                         onSelected: (value) {
-                          if (value == 'Edit') {
-                            // 수정 기능 구현
-                          } else if (value == 'Delete') {
+                          if (value == 'Delete') {
                             setState(() {
                               savedLocations.removeAt(index);
                             });
@@ -138,10 +136,6 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
                         },
                         itemBuilder: (BuildContext context) =>
                             <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'Edit',
-                            child: Text('Edit'),
-                          ),
                           const PopupMenuItem<String>(
                             value: 'Delete',
                             child: Text('Delete'),

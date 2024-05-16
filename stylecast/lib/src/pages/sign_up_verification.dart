@@ -43,7 +43,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   }
 
   void _startTimer() {
-    _timer = Timer(Duration(seconds: 20), () {
+    _timer = Timer(Duration(seconds: 1), () {
       setState(() {
         _isEmailVerified = true;
       });

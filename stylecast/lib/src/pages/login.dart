@@ -35,8 +35,11 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       // 에러 처리
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed. Please try again.')),
+        SnackBar(
+            content:
+                Text(e.toString().substring(e.toString().indexOf(' ') + 1))),
       );
+      print(e);
     }
   }
 
@@ -143,28 +146,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 0),
                 child: Column(
                   children: [
+                    SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         GestureDetector(
                           onTap: _signInWithGoogle,
                           child: Image.asset(
-                            'assets/images/google_logo.png',
-                            width: 62,
-                            height: 62,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            // 애플 로그인 로직 추가
-                          },
-                          child: Image.asset(
-                            'assets/images/facebook_logo.png',
-                            width: 62,
-                            height: 62,
+                            'assets/images/google_login.png',
+                            width: 280,
+                            height: 49,
                           ),
                         ),
                       ],
@@ -177,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(27),
                         ),
-                        minimumSize: Size(271, 46),
+                        fixedSize: Size(271, 46),
                       ),
                       child:
                           Text('Login', style: TextStyle(color: Colors.white)),
