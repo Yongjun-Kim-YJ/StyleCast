@@ -1,11 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:stylecast/src/pages/home.dart';
+import 'package:stylecast/src/pages/notification.dart';
 import 'package:stylecast/src/pages/splash_screen.dart';
-//import 'package:stylecast/src/pages/weather_service.dart';
+
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterLocalNotification.init();
+
   await Firebase.initializeApp();
   runApp(App());
 }
