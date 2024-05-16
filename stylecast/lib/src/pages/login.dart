@@ -35,8 +35,11 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       // 에러 처리
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed. Please try again.')),
+        SnackBar(
+            content:
+                Text(e.toString().substring(e.toString().indexOf(' ') + 1))),
       );
+      print(e);
     }
   }
 

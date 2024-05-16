@@ -15,21 +15,55 @@ class _SignUpUserInfoScreenState extends State<SignUpUserInfoScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
+  String? _usernameError;
+  String? _passwordError;
+  String? _confirmPasswordError;
+
   void _navigateToSignUpComplete() async {
-    try {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        await user.updatePassword(_passwordController.text.trim());
+    if (_validateInputs()) {
+      try {
+        User? user = _auth.currentUser;
+        if (user != null) {
+          await user.updatePassword(_passwordController.text.trim());
+        }
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => SignUpCompleteScreen(),
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text(e.toString().substring(e.toString().indexOf(' ') + 1))),
+        );
+        print(e);
       }
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => SignUpCompleteScreen(),
-        ),
-      );
-    } catch (e) {
-      // 에러 처리
-      print(e);
     }
+  }
+
+  bool _validateInputs() {
+    bool isValid = true;
+    setState(() {
+      _usernameError = _usernameController.text.isEmpty
+          ? 'Please enter your username'
+          : null;
+      _passwordError = _passwordController.text.isEmpty
+          ? 'Please enter your password'
+          : (_passwordController.text.length < 6
+              ? 'Password should be at least 6 characters'
+              : null);
+      _confirmPasswordError = _confirmPasswordController.text.isEmpty
+          ? 'Please enter your confirm password'
+          : (_passwordController.text != _confirmPasswordController.text
+              ? 'Passwords do not match'
+              : null);
+
+      isValid = _usernameError == null &&
+          _passwordError == null &&
+          _confirmPasswordError == null;
+    });
+    return isValid;
   }
 
   @override
@@ -143,27 +177,48 @@ class _SignUpUserInfoScreenState extends State<SignUpUserInfoScreen> {
                 SizedBox(height: 8),
                 Container(
                   width: 307,
-                  height: 50,
-                  child: TextField(
-                    controller: _usernameController,
-                    textAlignVertical: TextAlignVertical.top,
-                    cursorColor: Color(0xFF777777),
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFFD5D5D5), // 테두리 색상을 원하는 색상으로 변경하세요.
-                          width: 1.5, // 테두리 두께를 원하는 두께로 변경하세요.
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 50,
+                        child: TextField(
+                          controller: _usernameController,
+                          textAlignVertical: TextAlignVertical.top,
+                          cursorColor: Color(0xFF777777),
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _usernameError != null
+                                    ? Color(0xffb3281f)
+                                    : Color(0xFFD5D5D5), // 테두리 색상
+                                width: 1.5, // 테두리 두께
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _usernameError != null
+                                    ? Color(0xffb3281f)
+                                    : Color(0xFF2979FF), // 포커스 시 테두리 색상
+                                width: 1.5, // 포커스 시 테두리 두께
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFF2979FF), // 포커스 시 테두리 색상
-                          width: 1.5, // 포커스 시 테두리 두께
+                      if (_usernameError != null) ...[
+                        SizedBox(height: 5),
+                        Text(
+                          _usernameError!,
+                          style: TextStyle(
+                            color: Color(0xffb3281f),
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
-                    ),
+                      ],
+                    ],
                   ),
                 ),
               ],
@@ -184,28 +239,49 @@ class _SignUpUserInfoScreenState extends State<SignUpUserInfoScreen> {
                 SizedBox(height: 8),
                 Container(
                   width: 307,
-                  height: 50,
-                  child: TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    textAlignVertical: TextAlignVertical.top,
-                    cursorColor: Color(0xFF777777),
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFFD5D5D5), // 테두리 색상을 원하는 색상으로 변경하세요.
-                          width: 1.5, // 테두리 두께를 원하는 두께로 변경하세요.
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 50,
+                        child: TextField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          textAlignVertical: TextAlignVertical.top,
+                          cursorColor: Color(0xFF777777),
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _passwordError != null
+                                    ? Color(0xffb3281f)
+                                    : Color(0xFFD5D5D5), // 테두리 색상
+                                width: 1.5, // 테두리 두께
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _passwordError != null
+                                    ? Color(0xffb3281f)
+                                    : Color(0xFF2979FF), // 포커스 시 테두리 색상
+                                width: 1.5, // 포커스 시 테두리 두께
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFF2979FF), // 포커스 시 테두리 색상
-                          width: 1.5, // 포커스 시 테두리 두께
+                      if (_passwordError != null) ...[
+                        SizedBox(height: 5),
+                        Text(
+                          _passwordError!,
+                          style: TextStyle(
+                            color: Color(0xffb3281f),
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
-                    ),
+                      ],
+                    ],
                   ),
                 ),
               ],
@@ -226,28 +302,49 @@ class _SignUpUserInfoScreenState extends State<SignUpUserInfoScreen> {
                 SizedBox(height: 8),
                 Container(
                   width: 307,
-                  height: 50,
-                  child: TextField(
-                    controller: _confirmPasswordController,
-                    obscureText: true,
-                    textAlignVertical: TextAlignVertical.top,
-                    cursorColor: Color(0xFF777777),
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFFD5D5D5), // 테두리 색상을 원하는 색상으로 변경하세요.
-                          width: 1.5, // 테두리 두께를 원하는 두께로 변경하세요.
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 50,
+                        child: TextField(
+                          controller: _confirmPasswordController,
+                          obscureText: true,
+                          textAlignVertical: TextAlignVertical.top,
+                          cursorColor: Color(0xFF777777),
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _confirmPasswordError != null
+                                    ? Color(0xffb3281f)
+                                    : Color(0xFFD5D5D5), // 테두리 색상
+                                width: 1.5, // 테두리 두께
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _confirmPasswordError != null
+                                    ? Color(0xffb3281f)
+                                    : Color(0xFF2979FF), // 포커스 시 테두리 색상
+                                width: 1.5, // 포커스 시 테두리 두께
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFF2979FF), // 포커스 시 테두리 색상
-                          width: 1.5, // 포커스 시 테두리 두께
+                      if (_confirmPasswordError != null) ...[
+                        SizedBox(height: 5),
+                        Text(
+                          _confirmPasswordError!,
+                          style: TextStyle(
+                            color: Color(0xffb3281f),
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
-                    ),
+                      ],
+                    ],
                   ),
                 ),
               ],

@@ -14,29 +14,63 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
+  String? _firstNameError;
+  String? _lastNameError;
+  String? _emailError;
+
   void _navigateToEmailVerification() async {
-    try {
-      await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: 'temporary_password', // 임시 비밀번호 사용
-      );
+    if (_validateInputs()) {
+      try {
+        await _auth.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: 'temporary_password', // 임시 비밀번호 사용
+        );
 
-      // 이메일 인증 요청 보내기
-      User? user = _auth.currentUser;
-      if (user != null) {
-        await user.sendEmailVerification();
+        // 이메일 인증 요청 보내기
+        User? user = _auth.currentUser;
+        if (user != null) {
+          await user.sendEmailVerification();
+        }
+
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) =>
+                EmailVerificationScreen(email: _emailController.text.trim()),
+          ),
+        );
+      } catch (e) {
+        // 에러 처리
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text(e.toString().substring(e.toString().indexOf(' ') + 1))),
+        );
+        print(e);
       }
-
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) =>
-              EmailVerificationScreen(email: _emailController.text.trim()),
-        ),
-      );
-    } catch (e) {
-      // 에러 처리
-      print(e);
     }
+  }
+
+  bool _validateInputs() {
+    bool isValid = true;
+    String emailPattern = r'^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$';
+    setState(() {
+      _firstNameError = _firstNameController.text.isEmpty
+          ? 'Please enter your first name'
+          : null;
+      _lastNameError = _lastNameController.text.isEmpty
+          ? 'Please enter your last name'
+          : null;
+      _emailError = _emailController.text.isEmpty
+          ? 'Please enter your email'
+          : (!RegExp(emailPattern).hasMatch(_emailController.text)
+              ? 'The email address is badly formatted'
+              : null);
+
+      isValid = _firstNameError == null &&
+          _lastNameError == null &&
+          _emailError == null;
+    });
+    return isValid;
   }
 
   @override
@@ -150,27 +184,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(height: 8),
                 Container(
                   width: 307,
-                  height: 50,
-                  child: TextField(
-                    controller: _firstNameController,
-                    textAlignVertical: TextAlignVertical.top,
-                    cursorColor: Color(0xFF777777),
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFFD5D5D5), // 테두리 색상을 원하는 색상으로 변경하세요.
-                          width: 1.5, // 테두리 두께를 원하는 두께로 변경하세요.
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 50,
+                        child: TextField(
+                          controller: _firstNameController,
+                          textAlignVertical: TextAlignVertical.top,
+                          cursorColor: Color(0xFF777777),
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _firstNameError != null
+                                    ? Color(0xffb3281f)
+                                    : Color(0xFFD5D5D5), // 테두리 색상
+                                width: 1.5, // 테두리 두께
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _firstNameError != null
+                                    ? Color(0xffb3281f)
+                                    : Color(0xFF2979FF), // 포커스 시 테두리 색상
+                                width: 1.5, // 포커스 시 테두리 두께
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFF2979FF), // 포커스 시 테두리 색상
-                          width: 1.5, // 포커스 시 테두리 두께
+                      if (_firstNameError != null) ...[
+                        SizedBox(height: 5),
+                        Text(
+                          _firstNameError!,
+                          style: TextStyle(
+                            color: Color(0xffb3281f),
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
-                    ),
+                      ],
+                    ],
                   ),
                 ),
               ],
@@ -191,27 +246,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(height: 8),
                 Container(
                   width: 307,
-                  height: 50,
-                  child: TextField(
-                    controller: _lastNameController,
-                    textAlignVertical: TextAlignVertical.top,
-                    cursorColor: Color(0xFF777777),
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFFD5D5D5), // 테두리 색상을 원하는 색상으로 변경하세요.
-                          width: 1.5, // 테두리 두께를 원하는 두께로 변경하세요.
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 50,
+                        child: TextField(
+                          controller: _lastNameController,
+                          textAlignVertical: TextAlignVertical.top,
+                          cursorColor: Color(0xFF777777),
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _lastNameError != null
+                                    ? Color(0xffb3281f)
+                                    : Color(0xFFD5D5D5), // 테두리 색상
+                                width: 1.5, // 테두리 두께
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _lastNameError != null
+                                    ? Color(0xffb3281f)
+                                    : Color(0xFF2979FF), // 포커스 시 테두리 색상
+                                width: 1.5, // 포커스 시 테두리 두께
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFF2979FF), // 포커스 시 테두리 색상
-                          width: 1.5, // 포커스 시 테두리 두께
+                      if (_lastNameError != null) ...[
+                        SizedBox(height: 5),
+                        Text(
+                          _lastNameError!,
+                          style: TextStyle(
+                            color: Color(0xffb3281f),
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
-                    ),
+                      ],
+                    ],
                   ),
                 ),
               ],
@@ -232,27 +308,48 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(height: 8),
                 Container(
                   width: 307,
-                  height: 50,
-                  child: TextField(
-                    controller: _emailController,
-                    textAlignVertical: TextAlignVertical.top,
-                    cursorColor: Color(0xFF777777),
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFFD5D5D5), // 테두리 색상을 원하는 색상으로 변경하세요.
-                          width: 1.5, // 테두리 두께를 원하는 두께로 변경하세요.
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 50,
+                        child: TextField(
+                          controller: _emailController,
+                          textAlignVertical: TextAlignVertical.top,
+                          cursorColor: Color(0xFF777777),
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _emailError != null
+                                    ? Color(0xffb3281f)
+                                    : Color(0xFFD5D5D5), // 테두리 색상
+                                width: 1.5, // 테두리 두께
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _emailError != null
+                                    ? Color(0xffb3281f)
+                                    : Color(0xFF2979FF), // 포커스 시 테두리 색상
+                                width: 1.5, // 포커스 시 테두리 두께
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: Color(0xFF2979FF), // 포커스 시 테두리 색상
-                          width: 1.5, // 포커스 시 테두리 두께
+                      if (_emailError != null) ...[
+                        SizedBox(height: 5),
+                        Text(
+                          _emailError!,
+                          style: TextStyle(
+                            color: Color(0xffb3281f),
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
-                    ),
+                      ],
+                    ],
                   ),
                 ),
               ],
