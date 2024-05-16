@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:stylecast/src/pages/login.dart';
+import 'package:stylecast/src/pages/settings_notification.dart';
 
 class SettingsScreen extends StatelessWidget {
-  final VoidCallback myFunction;
-  SettingsScreen({required this.myFunction});
+  final VoidCallback toggleTemp;
+  final VoidCallback toggleNoti;
+  SettingsScreen({required this.toggleTemp, required this.toggleNoti});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,7 @@ class SettingsScreen extends StatelessWidget {
                     'Settings',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 40,
+                      fontSize: 36,
                       fontFamily: 'SF Pro',
                       fontWeight: FontWeight.bold,
                       height: 0,
@@ -47,7 +49,7 @@ class SettingsScreen extends StatelessWidget {
                         'Change username',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontFamily: 'SF Pro',
                           fontWeight: FontWeight.w400,
                           height: 0,
@@ -71,7 +73,7 @@ class SettingsScreen extends StatelessWidget {
                         'Change password',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontFamily: 'SF Pro',
                           fontWeight: FontWeight.w400,
                           height: 0,
@@ -107,7 +109,7 @@ class SettingsScreen extends StatelessWidget {
                         'Notifications',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontFamily: 'SF Pro',
                           fontWeight: FontWeight.w400,
                           height: 0,
@@ -116,6 +118,11 @@ class SettingsScreen extends StatelessWidget {
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () {
                         print('Notifications tapped');
+                                              Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SettingsNotificationScreen(notificationFunction: toggleNoti)),
+                      );
                         // 원하는 동작 추가
                       },
                     ),
@@ -131,7 +138,7 @@ class SettingsScreen extends StatelessWidget {
                         'Change units',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontFamily: 'SF Pro',
                           fontWeight: FontWeight.w400,
                           height: 0,
@@ -140,7 +147,7 @@ class SettingsScreen extends StatelessWidget {
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () {
                         print('Units tapped');
-                        myFunction();
+                        toggleTemp();
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -216,7 +223,7 @@ class SettingsScreen extends StatelessWidget {
                         'Log out',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontFamily: 'SF Pro',
                           fontWeight: FontWeight.w400,
                           height: 0,
