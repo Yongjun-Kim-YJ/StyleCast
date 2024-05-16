@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'weather_service.dart';
 import 'notification.dart';
-
+import 'package:stylecast/src/pages/settings.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     Future.delayed(const Duration(seconds: 3),
-    FlutterLocalNotification.requestNotificationPermission());
+        FlutterLocalNotification.requestNotificationPermission());
     super.initState();
 
     super.initState();
@@ -73,14 +73,13 @@ class _HomePageState extends State<HomePage> {
             Icon(Icons.location_on),
             SizedBox(width: 8),
             Text(
-              _currentWeatherData != null
-                  ? '${_currentWeatherData!['name']}, ${_currentWeatherData!['sys']['country']}'
-                  : 'Weather App',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              )
-            ),
+                _currentWeatherData != null
+                    ? '${_currentWeatherData!['name']}, ${_currentWeatherData!['sys']['country']}'
+                    : 'Weather App',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                )),
           ],
         ),
         centerTitle: true,
@@ -91,7 +90,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-
       drawer: Drawer(
         child: Column(
           children: [
@@ -171,6 +169,11 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onTap: () {
                       print('Setting is clicked');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SettingsScreen()),
+                      );
                     },
                   ),
                   ListTile(
@@ -185,7 +188,8 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onTap: () {
-                      FlutterLocalNotification.showNotification(); // Corrected to call the method directly
+                      FlutterLocalNotification
+                          .showNotification(); // Corrected to call the method directly
                       print('Test Notification is clicked');
                     },
                   ),
@@ -195,13 +199,10 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-
-
-
       body: _isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : _buildWeatherContent(),
-      );
+          ? const Center(child: CircularProgressIndicator())
+          : _buildWeatherContent(),
+    );
   }
 
   Widget _buildWeatherContent() {
@@ -219,7 +220,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     List<dynamic> forecastWeatherDataList = forecastWeatherData;
-    
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -238,26 +239,35 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 30),
-              Center(child: CurrentWidget(currentWeatherData: currentWeatherData)),
+              Center(
+                  child: CurrentWidget(currentWeatherData: currentWeatherData)),
               const SizedBox(height: 60),
-              Center(child: StylecastWidget(currentWeatherData: currentWeatherData, forecastWeatherData: forecastWeatherDataList, isCelsius: _isCelsius)),
+              Center(
+                  child: StylecastWidget(
+                      currentWeatherData: currentWeatherData,
+                      forecastWeatherData: forecastWeatherDataList,
+                      isCelsius: _isCelsius)),
               const SizedBox(height: 40),
-              Center(child: NextHoursWidget(forecastWeatherData: forecastWeatherDataList)),
+              Center(
+                  child: NextHoursWidget(
+                      forecastWeatherData: forecastWeatherDataList)),
               const SizedBox(height: 40),
-              Center(child: FiveDaysWidget(currentWeatherData: currentWeatherData, forecastWeatherData: forecastWeatherDataList)),
+              Center(
+                  child: FiveDaysWidget(
+                      currentWeatherData: currentWeatherData,
+                      forecastWeatherData: forecastWeatherDataList)),
               const SizedBox(height: 40),
-              Center(child: DetailsWidget(currentWeatherData: currentWeatherData, forecastWeatherData: forecastWeatherDataList)),
+              Center(
+                  child: DetailsWidget(
+                      currentWeatherData: currentWeatherData,
+                      forecastWeatherData: forecastWeatherDataList)),
             ],
           ),
         ),
       ),
     );
   }
-
 }
-
-
-
 
 class CurrentWidget extends StatelessWidget {
   final Map<String, dynamic> currentWeatherData;
@@ -266,8 +276,10 @@ class CurrentWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime time = DateTime.fromMillisecondsSinceEpoch(currentWeatherData['dt'] * 1000);
-    final iconUrl = 'https://openweathermap.org/img/wn/${currentWeatherData['weather'][0]['icon']}@2x.png';
+    final DateTime time =
+        DateTime.fromMillisecondsSinceEpoch(currentWeatherData['dt'] * 1000);
+    final iconUrl =
+        'https://openweathermap.org/img/wn/${currentWeatherData['weather'][0]['icon']}@2x.png';
     final temperature = currentWeatherData['main']['temp'].toStringAsFixed(0);
     final description = currentWeatherData['weather'][0]['description'];
 
@@ -312,7 +324,10 @@ class StylecastWidget extends StatelessWidget {
   late final todayMaxTemp;
   late final int currentTemp;
 
-  StylecastWidget({required this.currentWeatherData, required this.forecastWeatherData, required this.isCelsius}) {
+  StylecastWidget(
+      {required this.currentWeatherData,
+      required this.forecastWeatherData,
+      required this.isCelsius}) {
     dailyMinMax = getDailyMinMaxTemperatures(forecastWeatherData);
     currentTemp = (currentWeatherData['main']['temp'] as num).toInt();
     todayMinTemp = dailyMinMax[0][1];
@@ -321,7 +336,8 @@ class StylecastWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<ClothingItem> recommendedClothes = recommendClothes(currentTemp, isCelsius);
+    List<ClothingItem> recommendedClothes =
+        recommendClothes(currentTemp, isCelsius);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -460,12 +476,10 @@ class StylecastWidget extends StatelessWidget {
   }
 }
 
-
-
 class NextHoursWidget extends StatelessWidget {
   final List<dynamic> forecastWeatherData;
 
-  NextHoursWidget({required this.forecastWeatherData});  
+  NextHoursWidget({required this.forecastWeatherData});
 
   @override
   Widget build(BuildContext context) {
@@ -473,9 +487,14 @@ class NextHoursWidget extends StatelessWidget {
       return const Center(child: Text('Not enough forecast data'));
     }
 
-    final times = List.generate(8, (index) => formatTimeFromUnix(forecastWeatherData[index]['dt']));
-    final temps = List.generate(8, (index) => forecastWeatherData[index]['main']['temp'].toStringAsFixed(0));
-    final icons = List.generate(8, (index) => forecastWeatherData[index]['weather'][0]['icon']);
+    final times = List.generate(
+        8, (index) => formatTimeFromUnix(forecastWeatherData[index]['dt']));
+    final temps = List.generate(
+        8,
+        (index) =>
+            forecastWeatherData[index]['main']['temp'].toStringAsFixed(0));
+    final icons = List.generate(
+        8, (index) => forecastWeatherData[index]['weather'][0]['icon']);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -539,7 +558,8 @@ class NextHoursWidget extends StatelessWidget {
                         child: Row(
                           children: List.generate(8, (index) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.start,
@@ -599,7 +619,6 @@ class NextHoursWidget extends StatelessWidget {
   }
 }
 
-
 class FiveDaysWidget extends StatelessWidget {
   final Map<String, dynamic> currentWeatherData;
   final List<dynamic> forecastWeatherData;
@@ -607,11 +626,14 @@ class FiveDaysWidget extends StatelessWidget {
   late final int overallMinTemp;
   late final int overallMaxTemp;
 
-  FiveDaysWidget({required this.currentWeatherData, required this.forecastWeatherData}) {
+  FiveDaysWidget(
+      {required this.currentWeatherData, required this.forecastWeatherData}) {
     dailyMinMax = getDailyMinMaxTemperatures(forecastWeatherData);
 
-    overallMinTemp = dailyMinMax.map((e) => e[1] as int).reduce((a, b) => a < b ? a : b);
-    overallMaxTemp = dailyMinMax.map((e) => e[2] as int).reduce((a, b) => a > b ? a : b);
+    overallMinTemp =
+        dailyMinMax.map((e) => e[1] as int).reduce((a, b) => a < b ? a : b);
+    overallMaxTemp =
+        dailyMinMax.map((e) => e[2] as int).reduce((a, b) => a > b ? a : b);
   }
 
   @override
@@ -621,10 +643,11 @@ class FiveDaysWidget extends StatelessWidget {
     List<Widget> forecastWidgets = [];
     forecastWidgets.add(const SizedBox(height: 24));
     for (int i = 0; i < 5; i++) {
-      final date = DateFormat('MMM d').format(DateTime.parse(dailyMinMax[i][0].toString()));
+      final date = DateFormat('MMM d')
+          .format(DateTime.parse(dailyMinMax[i][0].toString()));
       final minTemp = dailyMinMax[i][1].toString();
       final maxTemp = dailyMinMax[i][2].toString();
-      
+
       final minTempValue = (dailyMinMax[i][1] as num).toInt();
       final maxTempValue = (dailyMinMax[i][2] as num).toInt();
 
@@ -686,17 +709,23 @@ class FiveDaysWidget extends StatelessWidget {
                           height: 4,
                           decoration: ShapeDecoration(
                             color: Color(0xFFD9D9D9),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(2)),
                           ),
                         ),
                         Positioned(
-                          left: calculatePosition(minTempValue, overallMinTemp, overallMaxTemp, barWidth).toDouble(),
+                          left: calculatePosition(minTempValue, overallMinTemp,
+                                  overallMaxTemp, barWidth)
+                              .toDouble(),
                           child: Container(
-                            width: calculateWidth(minTempValue, maxTempValue, overallMinTemp, overallMaxTemp, barWidth).toDouble(),
+                            width: calculateWidth(minTempValue, maxTempValue,
+                                    overallMinTemp, overallMaxTemp, barWidth)
+                                .toDouble(),
                             height: 4,
                             decoration: ShapeDecoration(
                               color: Colors.blue,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(2)),
                             ),
                           ),
                         ),
@@ -785,30 +814,35 @@ class FiveDaysWidget extends StatelessWidget {
   }
 }
 
-
 class DetailsWidget extends StatelessWidget {
   final Map<String, dynamic> currentWeatherData;
   final List<dynamic> forecastWeatherData;
   late final List<List<dynamic>> dailyMinMax;
 
-  DetailsWidget({required this.currentWeatherData, required this.forecastWeatherData}) {
+  DetailsWidget(
+      {required this.currentWeatherData, required this.forecastWeatherData}) {
     dailyMinMax = getDailyMinMaxTemperatures(forecastWeatherData);
   }
 
   @override
   Widget build(BuildContext context) {
-    final feelsLike = currentWeatherData['main']['feels_like'].toStringAsFixed(0);
-    final minTemp = forecastWeatherData.isNotEmpty
-        ? dailyMinMax[0][1].toString()
-        : 'N/A';
-    final maxTemp = forecastWeatherData.isNotEmpty
-        ? dailyMinMax[0][2].toString()
-        : 'N/A';
+    final feelsLike =
+        currentWeatherData['main']['feels_like'].toStringAsFixed(0);
+    final minTemp =
+        forecastWeatherData.isNotEmpty ? dailyMinMax[0][1].toString() : 'N/A';
+    final maxTemp =
+        forecastWeatherData.isNotEmpty ? dailyMinMax[0][2].toString() : 'N/A';
     final windSpeed = currentWeatherData['wind']['speed'].toString();
-    final rain = currentWeatherData['rain'] != null ? currentWeatherData['rain']['1h'].toString() : '0';
+    final rain = currentWeatherData['rain'] != null
+        ? currentWeatherData['rain']['1h'].toString()
+        : '0';
     final humidity = currentWeatherData['main']['humidity'].toString();
-    final sunrise = DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(currentWeatherData['sys']['sunrise'] * 1000));
-    final sunset = DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(currentWeatherData['sys']['sunset'] * 1000));
+    final sunrise = DateFormat('HH:mm').format(
+        DateTime.fromMillisecondsSinceEpoch(
+            currentWeatherData['sys']['sunrise'] * 1000));
+    final sunset = DateFormat('HH:mm').format(
+        DateTime.fromMillisecondsSinceEpoch(
+            currentWeatherData['sys']['sunset'] * 1000));
 
     return Column(
       children: [
@@ -831,13 +865,13 @@ class DetailsWidget extends StatelessWidget {
                       child: Text(
                         'Details',
                         textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.blue.shade900,
-                            fontSize: 20,
-                            fontFamily: 'SF Pro',
-                            fontWeight: FontWeight.bold,
-                            height: 0,
-                          ),
+                        style: TextStyle(
+                          color: Colors.blue.shade900,
+                          fontSize: 20,
+                          fontFamily: 'SF Pro',
+                          fontWeight: FontWeight.bold,
+                          height: 0,
+                        ),
                       ),
                     )
                   ],
@@ -881,14 +915,16 @@ class DetailsWidget extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Center(child:
-                                  SizedBox(
+                                Center(
+                                  child: SizedBox(
                                     width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Feels Like',
@@ -917,14 +953,16 @@ class DetailsWidget extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(height: 25),
-                                Center(child:
-                                  SizedBox(
+                                Center(
+                                  child: SizedBox(
                                     width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Min. Temp.',
@@ -953,14 +991,16 @@ class DetailsWidget extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(height: 25),
-                                Center(child:
-                                  SizedBox(
+                                Center(
+                                  child: SizedBox(
                                     width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Max. Temp.',
@@ -989,26 +1029,25 @@ class DetailsWidget extends StatelessWidget {
                                   ),
                                 ),
 
-
-
                                 SizedBox(height: 25),
                                 Container(
                                   width: 256,
                                   height: 1,
-                                  decoration: const BoxDecoration(color: Color(0xFF1F1F1F)),
+                                  decoration: const BoxDecoration(
+                                      color: Color(0xFF1F1F1F)),
                                 ),
                                 SizedBox(height: 25),
 
-
-
-                                Center(child:
-                                  SizedBox(
+                                Center(
+                                  child: SizedBox(
                                     width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Windspeed',
@@ -1022,7 +1061,7 @@ class DetailsWidget extends StatelessWidget {
                                         ),
                                         SizedBox(width: 10),
                                         Text(
-                                          '$windSpeed'' mph',
+                                          '$windSpeed' ' mph',
                                           textAlign: TextAlign.right,
                                           style: TextStyle(
                                             color: Colors.black,
@@ -1037,14 +1076,16 @@ class DetailsWidget extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(height: 25),
-                                Center(child:
-                                  SizedBox(
+                                Center(
+                                  child: SizedBox(
                                     width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Rains in 1hr',
@@ -1058,7 +1099,8 @@ class DetailsWidget extends StatelessWidget {
                                         ),
                                         SizedBox(width: 10),
                                         Text(
-                                          '$rain'' mm', // Dynamic temperature
+                                          '$rain'
+                                          ' mm', // Dynamic temperature
                                           textAlign: TextAlign.right,
                                           style: TextStyle(
                                             color: Colors.black,
@@ -1073,14 +1115,16 @@ class DetailsWidget extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(height: 25),
-                                Center(child:
-                                  SizedBox(
+                                Center(
+                                  child: SizedBox(
                                     width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Humidity',
@@ -1094,7 +1138,8 @@ class DetailsWidget extends StatelessWidget {
                                         ),
                                         SizedBox(width: 10),
                                         Text(
-                                          '$humidity''%', // Dynamic temperature
+                                          '$humidity'
+                                          '%', // Dynamic temperature
                                           textAlign: TextAlign.right,
                                           style: TextStyle(
                                             color: Colors.black,
@@ -1113,20 +1158,21 @@ class DetailsWidget extends StatelessWidget {
                                 Container(
                                   width: 256,
                                   height: 1,
-                                  decoration: const BoxDecoration(color: Color(0xFF1F1F1F)),
+                                  decoration: const BoxDecoration(
+                                      color: Color(0xFF1F1F1F)),
                                 ),
                                 SizedBox(height: 25),
 
-
-
-                                Center(child:
-                                  SizedBox(
+                                Center(
+                                  child: SizedBox(
                                     width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Sunrises at',
@@ -1155,17 +1201,18 @@ class DetailsWidget extends StatelessWidget {
                                   ),
                                 ),
 
-
                                 SizedBox(height: 25),
 
-                                Center(child:
-                                  SizedBox(
+                                Center(
+                                  child: SizedBox(
                                     width: 280,
                                     height: 17,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'Sunsets at',
@@ -1194,7 +1241,6 @@ class DetailsWidget extends StatelessWidget {
                                   ),
                                 ),
 
-                                
                                 // Other similar modifications for max temp, wind speed, etc.
                               ],
                             ),
@@ -1218,9 +1264,6 @@ class DetailsWidget extends StatelessWidget {
     );
   }
 }
-
-
-
 
 String capitalizeFirstLetter(String input) {
   if (input.isEmpty) {
@@ -1248,7 +1291,14 @@ List<int> getTomorrowIndices(List<dynamic> weatherList, DateTime today) {
   DateTime tomorrow = today.add(Duration(days: 1));
   String tomorrowDateStr = tomorrow.toIso8601String().split('T')[0];
 
-  List<String> times = ['06:00:00', '09:00:00', '12:00:00', '15:00:00', '18:00:00', '21:00:00'];
+  List<String> times = [
+    '06:00:00',
+    '09:00:00',
+    '12:00:00',
+    '15:00:00',
+    '18:00:00',
+    '21:00:00'
+  ];
   int foundCount = 0;
 
   for (int i = 0; i < weatherList.length; i++) {
@@ -1268,21 +1318,23 @@ List<int> getTomorrowIndices(List<dynamic> weatherList, DateTime today) {
 String formatTimeFromUnix(int dt) {
   DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(dt * 1000).toLocal();
   String formattedTime = DateFormat.jm().format(dateTime);
-  
+
   if (formattedTime.endsWith(":00 AM")) {
     formattedTime = formattedTime.replaceAll(":00 AM", " AM");
   } else if (formattedTime.endsWith(":00 PM")) {
     formattedTime = formattedTime.replaceAll(":00 PM", " PM");
   }
-  
+
   return formattedTime;
 }
 
-List<List<dynamic>> getDailyMinMaxTemperatures(List<dynamic> forecastWeatherData) {
+List<List<dynamic>> getDailyMinMaxTemperatures(
+    List<dynamic> forecastWeatherData) {
   Map<String, List<int>> dailyTemps = {};
 
   for (var item in forecastWeatherData) {
-    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(item['dt'] * 1000).toLocal();
+    DateTime dateTime =
+        DateTime.fromMillisecondsSinceEpoch(item['dt'] * 1000).toLocal();
     String dateStr = DateFormat('yyyy-MM-dd').format(dateTime);
 
     int tempMin = (item['main']['temp_min'] as num).toInt();
@@ -1291,8 +1343,10 @@ List<List<dynamic>> getDailyMinMaxTemperatures(List<dynamic> forecastWeatherData
     if (!dailyTemps.containsKey(dateStr)) {
       dailyTemps[dateStr] = [tempMin, tempMax];
     } else {
-      dailyTemps[dateStr]![0] = tempMin < dailyTemps[dateStr]![0] ? tempMin : dailyTemps[dateStr]![0];
-      dailyTemps[dateStr]![1] = tempMax > dailyTemps[dateStr]![1] ? tempMax : dailyTemps[dateStr]![1];
+      dailyTemps[dateStr]![0] =
+          tempMin < dailyTemps[dateStr]![0] ? tempMin : dailyTemps[dateStr]![0];
+      dailyTemps[dateStr]![1] =
+          tempMax > dailyTemps[dateStr]![1] ? tempMax : dailyTemps[dateStr]![1];
     }
   }
 
@@ -1320,18 +1374,23 @@ String getGreeting() {
   }
 }
 
-
-int calculatePosition(int temp, int overallMinTemp, int overallMaxTemp, int barWidth) {
-  return ((temp - overallMinTemp) * barWidth ~/ (overallMaxTemp - overallMinTemp)).toInt();
+int calculatePosition(
+    int temp, int overallMinTemp, int overallMaxTemp, int barWidth) {
+  return ((temp - overallMinTemp) *
+          barWidth ~/
+          (overallMaxTemp - overallMinTemp))
+      .toInt();
 }
 
-int calculateWidth(int minTemp, int maxTemp, int overallMinTemp, int overallMaxTemp, int barWidth) {
-  return ((maxTemp - minTemp) * barWidth ~/ (overallMaxTemp - overallMinTemp)).toInt();
+int calculateWidth(int minTemp, int maxTemp, int overallMinTemp,
+    int overallMaxTemp, int barWidth) {
+  return ((maxTemp - minTemp) * barWidth ~/ (overallMaxTemp - overallMinTemp))
+      .toInt();
 }
 
 List<ClothingItem> recommendClothes(int currentTemp, bool isCelsius) {
   String weather;
-  num tempInFahrenheit = isCelsius ? (currentTemp * 9/5) + 32 : currentTemp;
+  num tempInFahrenheit = isCelsius ? (currentTemp * 9 / 5) + 32 : currentTemp;
   print('Temp in Fahrenheit: $tempInFahrenheit');
   if (tempInFahrenheit >= 85) {
     weather = 'hot';
@@ -1357,7 +1416,8 @@ List<ClothingItem> recommendClothes(int currentTemp, bool isCelsius) {
   for (var type in ['outerwear', 'top', 'bottom', 'extra']) {
     var clothingItem = recommendedItems.firstWhere(
       (item) => item.type == type,
-      orElse: () => ClothingItem(type, weather, 'None', 'assets/images/account_created.png'),
+      orElse: () => ClothingItem(
+          type, weather, 'None', 'assets/images/account_created.png'),
     );
     if (clothingItem.name != 'None') {
       result.add(clothingItem);
@@ -1366,9 +1426,6 @@ List<ClothingItem> recommendClothes(int currentTemp, bool isCelsius) {
 
   return result;
 }
-
-
-
 
 class ClothingItem {
   final String type;
@@ -1380,22 +1437,28 @@ class ClothingItem {
 }
 
 List<ClothingItem> clothingItems = [
-  ClothingItem('outerwear', 'moderate', 'Cardigan', 'assets/images/clothes/cardigan.png'),
-  ClothingItem('outerwear', 'cold', 'Jacket', 'assets/images/clothes/denim-jacket.png'),
-  ClothingItem('outerwear', 'freezing', 'Winter jacket', 'assets/images/clothes/jacket.png'),
+  ClothingItem('outerwear', 'moderate', 'Cardigan',
+      'assets/images/clothes/cardigan.png'),
+  ClothingItem(
+      'outerwear', 'cold', 'Jacket', 'assets/images/clothes/denim-jacket.png'),
+  ClothingItem('outerwear', 'freezing', 'Winter jacket',
+      'assets/images/clothes/jacket.png'),
   ClothingItem('top', 'hot', 'T-shirt', 'assets/images/clothes/t-shirt.png'),
-  ClothingItem('top', 'warm', 'Polo shirt', 'assets/images/clothes/polo-shirt.png'),
+  ClothingItem(
+      'top', 'warm', 'Polo shirt', 'assets/images/clothes/polo-shirt.png'),
   ClothingItem('top', 'moderate', 'Shirt', 'assets/images/clothes/cloth.png'),
   ClothingItem('top', 'cold', 'Sweater', 'assets/images/clothes/sweater.png'),
   ClothingItem('top', 'freezing', 'Hoodie', 'assets/images/clothes/hoodie.png'),
-  ClothingItem('bottom', 'hot', 'Short pants', 'assets/images/clothes/shorts.png'),
+  ClothingItem(
+      'bottom', 'hot', 'Short pants', 'assets/images/clothes/shorts.png'),
   ClothingItem('bottom', 'warm', 'Jean', 'assets/images/clothes/jeans.png'),
   ClothingItem('bottom', 'moderate', 'Jean', 'assets/images/clothes/jeans.png'),
   ClothingItem('bottom', 'cold', 'Jean', 'assets/images/clothes/jeans.png'),
   ClothingItem('bottom', 'freezing', 'Jean', 'assets/images/clothes/jeans.png'),
-  ClothingItem('extra', 'hot', 'Sunglasses', 'assets/images/clothes/sunglasses.png'),
+  ClothingItem(
+      'extra', 'hot', 'Sunglasses', 'assets/images/clothes/sunglasses.png'),
   ClothingItem('extra', 'warm', 'Cap', 'assets/images/clothes/cap.png'),
   // ClothingItem('extra', 'cold', 'Muffler', 'assets/images/clothes/muffler.png'),
-  ClothingItem('extra', 'freezing', 'Gloves', 'assets/images/clothes/winter-gloves.png'),
+  ClothingItem(
+      'extra', 'freezing', 'Gloves', 'assets/images/clothes/winter-gloves.png'),
 ];
-

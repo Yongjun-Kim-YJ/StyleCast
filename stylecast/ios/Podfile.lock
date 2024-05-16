@@ -42,6 +42,7 @@ PODS:
   - Flutter (1.0.0)
   - flutter_facebook_auth (6.0.4):
     - FBSDKLoginKit (~> 16.3.1)
+    - Flutter
   - flutter_local_notifications (0.0.1):
     - Flutter
   - google_sign_in_ios (0.0.1):
@@ -143,10 +144,10 @@ SPEC CHECKSUMS:
   FirebaseCoreInternal: 910a81992c33715fec9263ca7381d59ab3a750b7
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_facebook_auth: c8700ab1770f3d8e5e7456220e4f3bbcdb831454
+  flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
   google_sign_in_ios: 07375bfbf2620bc93a602c0e27160d6afc6ead38
   GoogleSignIn: d4281ab6cf21542b1cfaff85c191f230b399d2db
-  GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
-  flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
+  GoogleUtilities: c56430aef51a1aa57b25da78c3f8397e522c67b7
   GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
   GTMSessionFetcher: 8000756fc1c19d2e5697b90311f7832d2e33f6cd
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
