@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'weather_service.dart';
 import 'notification.dart';
-import 'package:stylecast/src/pages/settings.dart';
+import 'package:stylecast/src/pages/settings_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
