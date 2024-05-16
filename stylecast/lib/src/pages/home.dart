@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'location.dart';
 import 'weather_service.dart';
 import 'notification.dart';
 import 'settings.dart';
@@ -173,7 +174,9 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => TempPrefPage(myFunction: _toggleTemperatureUnit)),
+                        MaterialPageRoute(
+                            builder: (context) => TempPrefPage(
+                                myFunction: _toggleTemperatureUnit)),
                       );
                       print('Temperature Preference is clicked');
                     },
@@ -190,7 +193,11 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onTap: () {
-                      _toggleNotification();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => LocationSettingsScreen()),
+                      );
                       print('Location is clicked');
                       print(_isNotificationEnabled);
                     },
@@ -211,9 +218,9 @@ class _HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => SettingsScreen(
-                                  toggleTemp: _toggleTemperatureUnit, toggleNoti: _toggleNotification,
-                                )
-                        ),
+                                  toggleTemp: _toggleTemperatureUnit,
+                                  toggleNoti: _toggleNotification,
+                                )),
                       );
                       print('Settings is clicked');
                     },
@@ -232,7 +239,7 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       print("-----------------");
                       print(_isNotificationEnabled);
-                      if(_isNotificationEnabled){
+                      if (_isNotificationEnabled) {
                         _showNotification();
                       }
                       print('Test Notification is clicked');
