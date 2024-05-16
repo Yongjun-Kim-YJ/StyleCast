@@ -6,7 +6,7 @@ import 'location.dart';
 import 'weather_service.dart';
 import 'notification.dart';
 import 'settings.dart';
-import 'temp_preference_page.dart';
+import 'temp_preference.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -22,16 +22,17 @@ class _HomePageState extends State<HomePage> {
   int warmTemp = 70;
   int moderateTemp = 60;
   int coldTemp = 45;
-  
+
   Map<String, dynamic>? _currentWeatherData;
   Map<String, dynamic>? _forecastWeatherData;
   bool _isLoading = true;
   bool _isCelsius = false;
   bool _isNotificationEnabled = false;
-  
+
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 3), FlutterLocalNotification.requestNotificationPermission());
+    Future.delayed(const Duration(seconds: 3),
+        FlutterLocalNotification.requestNotificationPermission());
     super.initState();
     _fetchWeatherData();
   }
@@ -70,7 +71,8 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _changeTempPreference(int newHot, int newWarm, int newModerate, int newCold) {
+  void _changeTempPreference(
+      int newHot, int newWarm, int newModerate, int newCold) {
     setState(() {
       hotTemp = newHot;
       warmTemp = newWarm;
@@ -82,7 +84,8 @@ class _HomePageState extends State<HomePage> {
   void _showNotification() {
     if (_currentWeatherData != null) {
       final currentTemp = (_currentWeatherData!['main']['temp'] as num).toInt();
-      final recommendedClothes = recommendClothes(currentTemp, _isCelsius, hotTemp, warmTemp, moderateTemp, coldTemp);
+      final recommendedClothes = recommendClothes(
+          currentTemp, _isCelsius, hotTemp, warmTemp, moderateTemp, coldTemp);
 
       String clothesList;
       if (recommendedClothes.length > 1) {
@@ -181,18 +184,18 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onTap: () {
                       Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TempPrefPage(
-                          tempPrefFunction: _changeTempPreference,
-                          currHot: hotTemp,
-                          currWarm: warmTemp,
-                          currModerate: moderateTemp,
-                          currCold: coldTemp,
-                          isCelsius: _isCelsius,
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TempPrefPage(
+                            tempPrefFunction: _changeTempPreference,
+                            currHot: hotTemp,
+                            currWarm: warmTemp,
+                            currModerate: moderateTemp,
+                            currCold: coldTemp,
+                            isCelsius: _isCelsius,
+                          ),
                         ),
-                      ),
-                    );
+                      );
                     },
                   ),
                   ListTile(
@@ -232,8 +235,8 @@ class _HomePageState extends State<HomePage> {
                             builder: (context) => SettingsScreen(
                                   toggleTemp: _toggleTemperatureUnit,
                                   toggleNoti: _toggleNotification,
-                                                            isCelsius: _isCelsius,
-                                                            isNotificationEnabled: _isNotificationEnabled,
+                                  isCelsius: _isCelsius,
+                                  isNotificationEnabled: _isNotificationEnabled,
                                 )),
                       );
                     },
@@ -310,8 +313,7 @@ class _HomePageState extends State<HomePage> {
                       hotTemp: hotTemp,
                       warmTemp: warmTemp,
                       moderateTemp: moderateTemp,
-                      coldTemp: coldTemp
-                      )),
+                      coldTemp: coldTemp)),
               const SizedBox(height: 40),
               Center(
                   child: NextHoursWidget(
@@ -401,8 +403,7 @@ class StylecastWidget extends StatelessWidget {
       required this.hotTemp,
       required this.warmTemp,
       required this.moderateTemp,
-      required this.coldTemp
-      }) {
+      required this.coldTemp}) {
     dailyMinMax = getDailyMinMaxTemperatures(forecastWeatherData);
     currentTemp = (currentWeatherData['main']['temp'] as num).toInt();
     todayMinTemp = dailyMinMax[0][1];
@@ -411,8 +412,8 @@ class StylecastWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<ClothingItem> recommendedClothes =
-        recommendClothes(currentTemp, isCelsius, hotTemp, warmTemp, moderateTemp, coldTemp);
+    List<ClothingItem> recommendedClothes = recommendClothes(
+        currentTemp, isCelsius, hotTemp, warmTemp, moderateTemp, coldTemp);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1455,7 +1456,6 @@ String getFirstName(String displayName) {
   return nameParts[0];
 }
 
-
 int calculatePosition(
     int temp, int overallMinTemp, int overallMaxTemp, int barWidth) {
   return ((temp - overallMinTemp) *
@@ -1470,7 +1470,8 @@ int calculateWidth(int minTemp, int maxTemp, int overallMinTemp,
       .toInt();
 }
 
-List<ClothingItem> recommendClothes(int currentTemp, bool isCelsius, int hotTemp, int warmTemp, int moderateTemp, int coldTemp){
+List<ClothingItem> recommendClothes(int currentTemp, bool isCelsius,
+    int hotTemp, int warmTemp, int moderateTemp, int coldTemp) {
   String weather;
   num tempInFahrenheit = isCelsius ? (currentTemp * 9 / 5) + 32 : currentTemp;
   if (tempInFahrenheit >= hotTemp) {
@@ -1507,8 +1508,6 @@ List<ClothingItem> recommendClothes(int currentTemp, bool isCelsius, int hotTemp
   return result;
 }
 
-
-
 class ClothingItem {
   final String type;
   final String weather;
@@ -1544,5 +1543,3 @@ List<ClothingItem> clothingItems = [
   ClothingItem(
       'extra', 'freezing', 'Gloves', 'assets/images/clothes/winter-gloves.png'),
 ];
-
-
