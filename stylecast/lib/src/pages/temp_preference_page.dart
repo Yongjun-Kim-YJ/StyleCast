@@ -198,7 +198,7 @@ class _TempPrefPageState extends State<TempPrefPage> {
                 rangeText,
                 style: const TextStyle(
                   color: Colors.black,
-                  fontSize: 20,
+                  fontSize: 16,
                   fontFamily: 'SF Pro',
                   fontWeight: FontWeight.w400,
                   height: 0,
