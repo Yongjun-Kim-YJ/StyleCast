@@ -181,9 +181,11 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
                         ],
                       ),
                       onTap: () {
-                        setState(() {
-                          selectedLocation = savedLocations[index];
-                        });
+                        setState(
+                          () {
+                            selectedLocation = savedLocations[index];
+                          },
+                        );
                       },
                     ),
                   ),

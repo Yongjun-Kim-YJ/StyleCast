@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 
 class AddLocationScreen extends StatefulWidget {
   @override
@@ -7,6 +8,41 @@ class AddLocationScreen extends StatefulWidget {
 
 class _AddLocationScreenState extends State<AddLocationScreen> {
   String? selectedLocation;
+  List<Placemark> searchResults = [];
+
+  Future<void> _searchLocation(String query) async {
+    if (query.isNotEmpty) {
+      try {
+        List<Location> locations = await locationFromAddress(query);
+        if (locations.isNotEmpty) {
+          List<Placemark> placemarks = await placemarkFromCoordinates(
+            locations.first.latitude,
+            locations.first.longitude,
+          );
+          setState(() {
+            searchResults = placemarks;
+          });
+        } else {
+          setState(() {
+            searchResults = [];
+          });
+        }
+      } catch (e) {
+        print(e);
+        setState(() {
+          searchResults = [];
+        });
+      }
+    } else {
+      setState(() {
+        searchResults = [];
+      });
+    }
+  }
+
+  String _getLocationString(Placemark placemark) {
+    return placemark.locality ?? '';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,21 +94,20 @@ class _AddLocationScreenState extends State<AddLocationScreen> {
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Color(0xFFD5D5D5), // 테두리 색상
-                          width: 1.5, // 테두리 두께
+                          color: Color(0xFFD5D5D5),
+                          width: 1.5,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Color(0xFF2979FF), // 포커스 시 테두리 색상
-                          width: 1.5, // 포커스 시 테두리 두께
+                          color: Color(0xFF2979FF),
+                          width: 1.5,
                         ),
                       ),
                     ),
                     onChanged: (value) {
-                      // Perform location search based on the entered value
-                      // Update the search results in the UI
+                      _searchLocation(value);
                     },
                   ),
                 ),
@@ -80,23 +115,27 @@ class _AddLocationScreenState extends State<AddLocationScreen> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: 10, // Replace with the actual number of search results
-              itemBuilder: (context, index) {
-                // Replace with the actual location data
-                String location = 'Location $index';
-
-                return ListTile(
-                  title: Text(location),
-                  onTap: () {
-                    setState(() {
-                      selectedLocation = location;
-                    });
-                  },
-                  trailing:
-                      selectedLocation == location ? Icon(Icons.check) : null,
-                );
-              },
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  left: 38.0, top: 5, right: 38), // 원하는 왼쪽 패딩 값 설정
+              child: ListView.builder(
+                itemCount: searchResults.length,
+                itemBuilder: (context, index) {
+                  Placemark placemark = searchResults[index];
+                  final locationString = _getLocationString(placemark);
+                  return ListTile(
+                    title: Text(locationString),
+                    onTap: () {
+                      setState(() {
+                        selectedLocation = locationString;
+                      });
+                    },
+                    trailing: selectedLocation == locationString
+                        ? Icon(Icons.check)
+                        : null,
+                  );
+                },
+              ),
             ),
           ),
         ],
