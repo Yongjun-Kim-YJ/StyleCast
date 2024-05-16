@@ -42,7 +42,9 @@ class _SplashScreenState extends State<SplashScreen> {
             Positioned(
               bottom:
                   300, // Adjust the vertical position of the CircularProgressIndicator
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: Colors.grey,
+              ),
             ),
           ],
         ),
