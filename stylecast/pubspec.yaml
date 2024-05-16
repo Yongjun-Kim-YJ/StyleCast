@@ -44,6 +44,7 @@ dependencies:
   flutter_facebook_auth: ^6.0.4
   flutter_local_notifications: ^17.1.2
   geolocator: ^7.7.1
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:

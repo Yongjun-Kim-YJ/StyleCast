@@ -4,7 +4,7 @@ import 'package:stylecast/src/pages/home.dart';
 import 'package:stylecast/src/pages/weather_service.dart';
 import 'add_location.dart';
 import 'weather_service.dart';
-//import 'package:stylecast/src/pages/add_location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationSettingsScreen extends StatefulWidget {
   @override
@@ -13,11 +13,30 @@ class LocationSettingsScreen extends StatefulWidget {
 
 class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
   final WeatherService _weatherService = WeatherService();
-
   Map<String, dynamic>? _currentWeatherData;
-
   String? selectedLocation;
   List<String> savedLocations = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedLocations();
+  }
+
+  Future<void> _loadSavedLocations() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? locations = prefs.getStringList('savedLocations');
+    if (locations != null) {
+      setState(() {
+        savedLocations = locations;
+      });
+    }
+  }
+
+  Future<void> _saveSavedLocations() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('savedLocations', savedLocations);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +87,12 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
                   );
 
                   _currentWeatherData = await _weatherService.getCurrentWeather(
-                      position.latitude, position.longitude);
+                      position.latitude + 0.0183, position.longitude + 0.1697);
+                  // San Jose
+                  // Actual 37.348456, -121.854353
+                  // Measured 37.33019742, -122.02406581
+                  print(position.latitude);
+                  print(position.longitude);
                   String currentCity = _currentWeatherData!['name'];
                   String currentCountry =
                       _currentWeatherData!['sys']['country'];
@@ -213,6 +237,7 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
 
   @override
   void dispose() {
+    _saveSavedLocations();
     super.dispose();
     if (selectedLocation != null) {
       List<String> locationParts = selectedLocation!.split(', ');
