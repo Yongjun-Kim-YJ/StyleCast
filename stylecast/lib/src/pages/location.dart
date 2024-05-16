@@ -46,14 +46,27 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.black),
-        title: Text(
-          'Location',
-          style: TextStyle(color: Colors.black),
-        ),
       ),
       body: Column(
         children: [
           SizedBox(height: 40),
+          const Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: SizedBox(
+              width: 320,
+              child: Text(
+                'Location',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 36,
+                  fontFamily: 'SF Pro',
+                  fontWeight: FontWeight.bold,
+                  height: 0,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 60),
           Container(
             width: 340,
             child: Material(
@@ -136,6 +149,7 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
               itemCount: savedLocations.length,
               itemBuilder: (context, index) {
                 return Container(
+                  padding: const EdgeInsets.only(left: 30.0, right: 13),
                   width: 340,
                   child: Material(
                     color: Colors.transparent,
