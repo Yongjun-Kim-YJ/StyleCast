@@ -4,7 +4,7 @@ import 'package:stylecast/src/pages/home.dart';
 import 'package:stylecast/src/pages/weather_service.dart';
 import 'add_location.dart';
 import 'weather_service.dart';
-//import 'package:stylecast/src/pages/add_location.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationSettingsScreen extends StatefulWidget {
   @override
@@ -13,11 +13,46 @@ class LocationSettingsScreen extends StatefulWidget {
 
 class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
   final WeatherService _weatherService = WeatherService();
-
   Map<String, dynamic>? _currentWeatherData;
-
   String? selectedLocation;
   List<String> savedLocations = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedLocations();
+    _loadSelectedLocation();
+  }
+
+  Future<void> _loadSavedLocations() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? locations = prefs.getStringList('savedLocations');
+    if (locations != null) {
+      setState(() {
+        savedLocations = locations;
+      });
+    }
+  }
+
+  Future<void> _loadSelectedLocation() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? location = prefs.getString('selectedLocation');
+    if (location != null) {
+      setState(() {
+        selectedLocation = location;
+      });
+    }
+  }
+
+  Future<void> _saveSelectedLocation(String location) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedLocation', location);
+  }
+
+  Future<void> _saveSavedLocations() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('savedLocations', savedLocations);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +62,27 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.black),
-        title: Text(
-          'Location',
-          style: TextStyle(color: Colors.black),
-        ),
       ),
       body: Column(
         children: [
           SizedBox(height: 40),
+          const Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: SizedBox(
+              width: 320,
+              child: Text(
+                'Location',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 36,
+                  fontFamily: 'SF Pro',
+                  fontWeight: FontWeight.bold,
+                  height: 0,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 60),
           Container(
             width: 340,
             child: Material(
@@ -68,7 +116,12 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
                   );
 
                   _currentWeatherData = await _weatherService.getCurrentWeather(
-                      position.latitude, position.longitude);
+                      position.latitude + 0.0183, position.longitude + 0.1697);
+                  // San Jose
+                  // Actual 37.348456, -121.854353
+                  // Measured 37.33019742, -122.02406581
+                  print(position.latitude);
+                  print(position.longitude);
                   String currentCity = _currentWeatherData!['name'];
                   String currentCountry =
                       _currentWeatherData!['sys']['country'];
@@ -85,6 +138,7 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
                   // 현재 위치 선택
                   setState(() {
                     selectedLocation = currentLocation;
+                    _saveSelectedLocation(currentLocation);
                   });
 
                   // // 현재 위치의 날씨 정보를 home.dart로 전달
@@ -112,6 +166,7 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
               itemCount: savedLocations.length,
               itemBuilder: (context, index) {
                 return Container(
+                  padding: const EdgeInsets.only(left: 30.0, right: 13),
                   width: 340,
                   child: Material(
                     color: Colors.transparent,
@@ -126,26 +181,40 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
                           height: 0,
                         ),
                       ),
-                      trailing: PopupMenuButton<String>(
-                        onSelected: (value) {
-                          if (value == 'Delete') {
-                            setState(() {
-                              savedLocations.removeAt(index);
-                            });
-                          }
-                        },
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'Delete',
-                            child: Text('Delete'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (selectedLocation == savedLocations[index])
+                            Icon(Icons.check),
+                          PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == 'Delete') {
+                                setState(() {
+                                  savedLocations.removeAt(index);
+                                });
+                                _saveSavedLocations();
+                                if (selectedLocation == savedLocations[index]) {
+                                  _saveSelectedLocation('');
+                                }
+                              }
+                            },
+                            itemBuilder: (BuildContext context) =>
+                                <PopupMenuEntry<String>>[
+                              const PopupMenuItem<String>(
+                                value: 'Delete',
+                                child: Text('Delete'),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                       onTap: () {
-                        setState(() {
-                          selectedLocation = savedLocations[index];
-                        });
+                        setState(
+                          () {
+                            selectedLocation = savedLocations[index];
+                            _saveSelectedLocation(savedLocations[index]);
+                          },
+                        );
                       },
                     ),
                   ),
@@ -195,6 +264,9 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
                       selectedLocation = result;
                     });
 
+                    _saveSavedLocations();
+                    _saveSelectedLocation(result);
+
                     List<String> locationParts = selectedLocation!.split(', ');
                     String city = locationParts[0];
                     String country = locationParts[1];
@@ -213,6 +285,7 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
 
   @override
   void dispose() {
+    _saveSavedLocations();
     super.dispose();
     if (selectedLocation != null) {
       List<String> locationParts = selectedLocation!.split(', ');

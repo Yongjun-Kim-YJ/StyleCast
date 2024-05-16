@@ -164,7 +164,8 @@ class SettingsScreen extends StatelessWidget {
                         showCupertinoDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            final String newUnit = isCelsius ? "Fahrenheit" : "Celsius";
+                            final String newUnit =
+                                isCelsius ? "Fahrenheit" : "Celsius";
                             return CupertinoAlertDialog(
                               title: const Text(
                                 "Unit Changed!",
@@ -235,7 +236,8 @@ class SettingsScreen extends StatelessWidget {
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () async {
                         await FirebaseAuth.instance.signOut();
-                        Navigator.of(context).popUntil((route) => route.isFirst);
+                        Navigator.of(context)
+                            .popUntil((route) => route.isFirst);
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
