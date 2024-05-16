@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:stylecast/src/pages/login.dart';
@@ -6,7 +7,15 @@ import 'package:stylecast/src/pages/settings_notification.dart';
 class SettingsScreen extends StatelessWidget {
   final VoidCallback toggleTemp;
   final VoidCallback toggleNoti;
-  SettingsScreen({required this.toggleTemp, required this.toggleNoti});
+  final bool isCelsius;
+  final bool isNotificationEnabled;
+
+  SettingsScreen({
+    required this.toggleTemp,
+    required this.toggleNoti,
+    required this.isCelsius,
+    required this.isNotificationEnabled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -118,11 +127,15 @@ class SettingsScreen extends StatelessWidget {
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () {
                         print('Notifications tapped');
-                                              Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => SettingsNotificationScreen(notificationFunction: toggleNoti)),
-                      );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SettingsNotificationScreen(
+                              notificationToggleFunction: toggleNoti,
+                              isNotificationEnabled: isNotificationEnabled,
+                            ),
+                          ),
+                        );
                         // 원하는 동작 추가
                       },
                     ),
@@ -148,46 +161,36 @@ class SettingsScreen extends StatelessWidget {
                       onTap: () {
                         print('Units tapped');
                         toggleTemp();
-                        showDialog(
+                        showCupertinoDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0)),
-                              backgroundColor: Colors.white,
-                              //Dialog Main Title
-                              title: const Column(
-                                children: <Widget>[
-                                  Text(
-                                    "Unit Changed!",
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 24,
-                                      fontFamily: 'SF Pro',
-                                      fontWeight: FontWeight.w400,
-                                      height: 0,
-                                    ),
-                                  ),
-                                ],
+                            final String newUnit = isCelsius ? "Fahrenheit" : "Celsius";
+                            return CupertinoAlertDialog(
+                              title: const Text(
+                                "Unit Changed!",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontFamily: 'SF Pro',
+                                  fontWeight: FontWeight.w400,
+                                  height: 0,
+                                ),
                               ),
-                              content: const Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(height: 16),
-                                    Text(
-                                      "The temperature unit has been changed.",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontFamily: 'SF Pro',
-                                        fontWeight: FontWeight.w400,
-                                        height: 0,
-                                      ),
-                                    ),
-                                  ]),
-                              actions: [
-                                TextButton(
+                              content: Padding(
+                                padding: const EdgeInsets.only(top: 16.0),
+                                child: Text(
+                                  "The unit is now $newUnit",
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontFamily: 'SF Pro',
+                                    fontWeight: FontWeight.w400,
+                                    height: 0,
+                                  ),
+                                ),
+                              ),
+                              actions: <Widget>[
+                                CupertinoDialogAction(
                                   child: const Text("OK"),
                                   onPressed: () {
                                     Navigator.of(context).pop();
@@ -232,12 +235,12 @@ class SettingsScreen extends StatelessWidget {
                       trailing: const Icon(Icons.arrow_forward_ios),
                       onTap: () async {
                         await FirebaseAuth.instance.signOut();
-                        Navigator.of(context)
-                            .popUntil((route) => route.isFirst);
+                        Navigator.of(context).popUntil((route) => route.isFirst);
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => LoginScreen()),
+                            builder: (context) => LoginScreen(),
+                          ),
                         );
                       },
                     ),
