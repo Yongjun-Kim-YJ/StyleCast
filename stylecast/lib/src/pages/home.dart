@@ -1,5 +1,4 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
+// home.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'location.dart';
@@ -26,20 +25,17 @@ class _HomePageState extends State<HomePage> {
   Map<String, dynamic>? _currentWeatherData;
   Map<String, dynamic>? _forecastWeatherData;
   bool _isLoading = true;
-  bool _isCelsius = true;
+  bool _isCelsius = false;
   bool _isNotificationEnabled = false;
+  
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 3),
-        FlutterLocalNotification.requestNotificationPermission());
-    super.initState();
-
+    Future.delayed(const Duration(seconds: 3), FlutterLocalNotification.requestNotificationPermission());
     super.initState();
     _fetchWeatherData();
   }
 
   Future<void> _fetchWeatherData() async {
-    print(_isCelsius);
     try {
       final currentWeatherData = _isCelsius
           ? await _weatherService.getCurrentCelsiusWeather(latitude, longitude)
@@ -69,7 +65,6 @@ class _HomePageState extends State<HomePage> {
 
   void _toggleNotification() {
     setState(() {
-      print("notification toggled!");
       _isNotificationEnabled = !_isNotificationEnabled;
     });
   }
@@ -88,7 +83,6 @@ class _HomePageState extends State<HomePage> {
       final currentTemp = (_currentWeatherData!['main']['temp'] as num).toInt();
       final recommendedClothes = recommendClothes(currentTemp, _isCelsius, hotTemp, warmTemp, moderateTemp, coldTemp);
 
-      // Convert list to string with "and" before the last element
       String clothesList;
       if (recommendedClothes.length > 1) {
         clothesList =
@@ -115,7 +109,6 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        // leading: const Icon(Icons.menu),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -195,12 +188,10 @@ class _HomePageState extends State<HomePage> {
                           currWarm: warmTemp,
                           currModerate: moderateTemp,
                           currCold: coldTemp,
+                          isCelsius: _isCelsius,
                         ),
                       ),
                     );
-
-                      print('Temperature Preference is clicked');
-
                     },
                   ),
                   ListTile(
@@ -220,8 +211,6 @@ class _HomePageState extends State<HomePage> {
                         MaterialPageRoute(
                             builder: (context) => LocationSettingsScreen()),
                       );
-                      print('Location is clicked');
-                      print(_isNotificationEnabled);
                     },
                   ),
                   ListTile(
@@ -244,7 +233,6 @@ class _HomePageState extends State<HomePage> {
                                   toggleNoti: _toggleNotification,
                                 )),
                       );
-                      print('Settings is clicked');
                     },
                   ),
                   ListTile(
@@ -259,12 +247,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onTap: () {
-                      print("-----------------");
-                      print(_isNotificationEnabled);
                       if (_isNotificationEnabled) {
                         _showNotification();
                       }
-                      print('Test Notification is clicked');
                     },
                   ),
                 ],
@@ -1478,7 +1463,6 @@ int calculateWidth(int minTemp, int maxTemp, int overallMinTemp,
 List<ClothingItem> recommendClothes(int currentTemp, bool isCelsius, int hotTemp, int warmTemp, int moderateTemp, int coldTemp){
   String weather;
   num tempInFahrenheit = isCelsius ? (currentTemp * 9 / 5) + 32 : currentTemp;
-  print('Temp in Fahrenheit: $tempInFahrenheit');
   if (tempInFahrenheit >= hotTemp) {
     weather = 'hot';
   } else if (tempInFahrenheit >= warmTemp) {
@@ -1490,7 +1474,6 @@ List<ClothingItem> recommendClothes(int currentTemp, bool isCelsius, int hotTemp
   } else {
     weather = 'freezing';
   }
-  print('Weather: $weather');
 
   List<ClothingItem> recommendedItems = [];
   for (var item in clothingItems) {
@@ -1549,3 +1532,4 @@ List<ClothingItem> clothingItems = [
   ClothingItem(
       'extra', 'freezing', 'Gloves', 'assets/images/clothes/winter-gloves.png'),
 ];
+

@@ -1,3 +1,4 @@
+// temp_prep_page.dart
 import 'package:flutter/material.dart';
 
 class TempPrefPage extends StatefulWidget {
@@ -6,6 +7,7 @@ class TempPrefPage extends StatefulWidget {
   final int currWarm;
   final int currModerate;
   final int currCold;
+  final bool isCelsius;
 
   const TempPrefPage({
     super.key,
@@ -13,7 +15,8 @@ class TempPrefPage extends StatefulWidget {
     required this.currHot,
     required this.currWarm,
     required this.currModerate,
-    required this.currCold
+    required this.currCold,
+    required this.isCelsius,
   });
 
   @override
@@ -29,15 +32,28 @@ class _TempPrefPageState extends State<TempPrefPage> {
   @override
   void initState() {
     super.initState();
-    hotTemp = widget.currHot;
-    warmTemp = widget.currWarm;
-    moderateTemp = widget.currModerate;
-    coldTemp = widget.currCold;
+    hotTemp = widget.isCelsius ? fahrenheitToCelsius(widget.currHot) : widget.currHot;
+    warmTemp = widget.isCelsius ? fahrenheitToCelsius(widget.currWarm) : widget.currWarm;
+    moderateTemp = widget.isCelsius ? fahrenheitToCelsius(widget.currModerate) : widget.currModerate;
+    coldTemp = widget.isCelsius ? fahrenheitToCelsius(widget.currCold) : widget.currCold;
   }
 
   void _savePreferences() {
-    widget.tempPrefFunction(hotTemp, warmTemp, moderateTemp, coldTemp);
+    widget.tempPrefFunction(
+      widget.isCelsius ? celsiusToFahrenheit(hotTemp) : hotTemp,
+      widget.isCelsius ? celsiusToFahrenheit(warmTemp) : warmTemp,
+      widget.isCelsius ? celsiusToFahrenheit(moderateTemp) : moderateTemp,
+      widget.isCelsius ? celsiusToFahrenheit(coldTemp) : coldTemp,
+    );
     Navigator.pop(context);
+  }
+
+  int fahrenheitToCelsius(int f) {
+    return ((f - 32) * 5 / 9).round();
+  }
+
+  int celsiusToFahrenheit(int c) {
+    return ((c * 9 / 5) + 32).round();
   }
 
   List<DropdownMenuItem<int>> _generateItems(int minValue, int maxValue) {
@@ -92,7 +108,7 @@ class _TempPrefPageState extends State<TempPrefPage> {
                   setState(() {
                     hotTemp = value;
                   });
-                }, minValue: warmTemp + 1, maxValue: 99, rangeText: '~ Above'),
+                }, minValue: warmTemp + 1, maxValue: widget.isCelsius ? 37 : 99, rangeText: '~ Above'),
                 const SizedBox(height: 4),
                 _buildTemperatureSetting('Warm', warmTemp, (value) {
                   setState(() {
