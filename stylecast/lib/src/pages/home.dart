@@ -231,6 +231,8 @@ class _HomePageState extends State<HomePage> {
                             builder: (context) => SettingsScreen(
                                   toggleTemp: _toggleTemperatureUnit,
                                   toggleNoti: _toggleNotification,
+                                                            isCelsius: _isCelsius,
+                                                            isNotificationEnabled: _isNotificationEnabled,
                                 )),
                       );
                     },

@@ -3,16 +3,26 @@ import 'package:flutter/material.dart';
 
 class SettingsNotificationScreen extends StatefulWidget {
   final VoidCallback notificationToggleFunction;
+  final bool isNotificationEnabled;
 
-  const SettingsNotificationScreen({super.key, required VoidCallback notificationFunction})
-    : notificationToggleFunction = notificationFunction;
+  const SettingsNotificationScreen({
+    super.key,
+    required this.notificationToggleFunction,
+    required this.isNotificationEnabled,
+  });
 
   @override
   _SettingsNotificationScreenState createState() => _SettingsNotificationScreenState();
 }
 
 class _SettingsNotificationScreenState extends State<SettingsNotificationScreen> {
-  bool _isChecked = false; // 상태 변수 추가
+  late bool _isChecked;
+
+  @override
+  void initState() {
+    super.initState();
+    _isChecked = widget.isNotificationEnabled; // 초기 상태 설정
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,28 +89,6 @@ class _SettingsNotificationScreenState extends State<SettingsNotificationScreen>
                   ),
                 ),
                 const SizedBox(height: 4),
-                Container(
-                  width: 310,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 0),
-                      title: const Text(
-                        'Set notification time',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontFamily: 'SF Pro',
-                          fontWeight: FontWeight.w400,
-                          height: 0,
-                        ),
-                      ),
-                      onTap: () {
-                        print('Set notification time tapped'); // 원하는 동작 추가
-                      },
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
