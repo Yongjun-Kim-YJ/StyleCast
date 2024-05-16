@@ -21,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   Map<String, dynamic>? _forecastWeatherData;
   bool _isLoading = true;
   bool _isCelsius = true;
+  bool _isNotificationEnabled = false;
   @override
   void initState() {
     Future.delayed(const Duration(seconds: 3),
@@ -58,6 +59,13 @@ class _HomePageState extends State<HomePage> {
       _isLoading = true;
     });
     _fetchWeatherData();
+  }
+
+  void _toggleNotification() {
+    setState(() {
+      print("notification toggled!");
+      _isNotificationEnabled = !_isNotificationEnabled;
+    });
   }
 
   void _showNotification() {
@@ -165,12 +173,8 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => TempPrefPage(
-                                  myFunction: _toggleTemperatureUnit,
-                                )),
+                        MaterialPageRoute(builder: (context) => TempPrefPage(myFunction: _toggleTemperatureUnit)),
                       );
-
                       print('Temperature Preference is clicked');
                     },
                   ),
@@ -186,7 +190,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onTap: () {
+                      _toggleNotification();
                       print('Location is clicked');
+                      print(_isNotificationEnabled);
                     },
                   ),
                   ListTile(
@@ -205,8 +211,9 @@ class _HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => SettingsScreen(
-                                  myFunction: _toggleTemperatureUnit,
-                                )),
+                                  toggleTemp: _toggleTemperatureUnit, toggleNoti: _toggleNotification,
+                                )
+                        ),
                       );
                       print('Settings is clicked');
                     },
@@ -223,7 +230,11 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onTap: () {
-                      _showNotification();
+                      print("-----------------");
+                      print(_isNotificationEnabled);
+                      if(_isNotificationEnabled){
+                        _showNotification();
+                      }
                       print('Test Notification is clicked');
                     },
                   ),
