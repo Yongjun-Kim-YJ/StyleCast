@@ -47,7 +47,7 @@ class SettingsScreen extends StatelessWidget {
                         'Change username',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontFamily: 'SF Pro',
                           fontWeight: FontWeight.w400,
                           height: 0,
@@ -71,7 +71,7 @@ class SettingsScreen extends StatelessWidget {
                         'Change password',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontFamily: 'SF Pro',
                           fontWeight: FontWeight.w400,
                           height: 0,
@@ -107,7 +107,7 @@ class SettingsScreen extends StatelessWidget {
                         'Notifications',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontFamily: 'SF Pro',
                           fontWeight: FontWeight.w400,
                           height: 0,
@@ -131,7 +131,7 @@ class SettingsScreen extends StatelessWidget {
                         'Change units',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontFamily: 'SF Pro',
                           fontWeight: FontWeight.w400,
                           height: 0,
@@ -216,7 +216,7 @@ class SettingsScreen extends StatelessWidget {
                         'Log out',
                         style: TextStyle(
                           color: Colors.black,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontFamily: 'SF Pro',
                           fontWeight: FontWeight.w400,
                           height: 0,
