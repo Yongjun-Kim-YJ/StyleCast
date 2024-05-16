@@ -21,6 +21,7 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
   void initState() {
     super.initState();
     _loadSavedLocations();
+    _loadSelectedLocation();
   }
 
   Future<void> _loadSavedLocations() async {
@@ -31,6 +32,21 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
         savedLocations = locations;
       });
     }
+  }
+
+  Future<void> _loadSelectedLocation() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? location = prefs.getString('selectedLocation');
+    if (location != null) {
+      setState(() {
+        selectedLocation = location;
+      });
+    }
+  }
+
+  Future<void> _saveSelectedLocation(String location) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selectedLocation', location);
   }
 
   Future<void> _saveSavedLocations() async {
@@ -122,6 +138,7 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
                   // 현재 위치 선택
                   setState(() {
                     selectedLocation = currentLocation;
+                    _saveSelectedLocation(currentLocation);
                   });
 
                   // // 현재 위치의 날씨 정보를 home.dart로 전달
@@ -164,19 +181,30 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
                           height: 0,
                         ),
                       ),
-                      trailing: PopupMenuButton<String>(
-                        onSelected: (value) {
-                          if (value == 'Delete') {
-                            setState(() {
-                              savedLocations.removeAt(index);
-                            });
-                          }
-                        },
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'Delete',
-                            child: Text('Delete'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (selectedLocation == savedLocations[index])
+                            Icon(Icons.check),
+                          PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == 'Delete') {
+                                setState(() {
+                                  savedLocations.removeAt(index);
+                                });
+                                _saveSavedLocations();
+                                if (selectedLocation == savedLocations[index]) {
+                                  _saveSelectedLocation('');
+                                }
+                              }
+                            },
+                            itemBuilder: (BuildContext context) =>
+                                <PopupMenuEntry<String>>[
+                              const PopupMenuItem<String>(
+                                value: 'Delete',
+                                child: Text('Delete'),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -184,6 +212,7 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
                         setState(
                           () {
                             selectedLocation = savedLocations[index];
+                            _saveSelectedLocation(savedLocations[index]);
                           },
                         );
                       },
@@ -234,6 +263,9 @@ class _LocationSettingsScreenState extends State<LocationSettingsScreen> {
                       savedLocations.add(result);
                       selectedLocation = result;
                     });
+
+                    _saveSavedLocations();
+                    _saveSelectedLocation(result);
 
                     List<String> locationParts = selectedLocation!.split(', ');
                     String city = locationParts[0];
