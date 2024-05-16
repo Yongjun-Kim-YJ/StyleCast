@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'weather_service.dart';
 import 'notification.dart';
 import 'settings_page.dart';
+import 'temp_preference_page.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -124,7 +125,7 @@ void _showNotification() {
           children: [
             Container(
               width: double.infinity,
-              color: Color(0xFF2979FF),
+              color: Color.fromARGB(255, 139, 181, 255),
               padding: const EdgeInsets.all(30.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,7 +167,11 @@ void _showNotification() {
                       ),
                     ),
                     onTap: () {
-                      _toggleTemperatureUnit();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => TempPrefPage(myFunction: _toggleTemperatureUnit,)),
+                      );
+
                       print('Temperature Preference is clicked');
                     },
                   ),
@@ -230,7 +235,7 @@ void _showNotification() {
 
 
       body: _isLoading
-        ? const Center(child: CircularProgressIndicator())
+        ? _buildWeatherContent()
         : _buildWeatherContent(),
       );
   }
