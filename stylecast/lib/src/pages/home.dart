@@ -1,6 +1,7 @@
 // home.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'location.dart';
 import 'weather_service.dart';
 import 'notification.dart';
@@ -95,7 +96,7 @@ class _HomePageState extends State<HomePage> {
 
       FlutterLocalNotification.showNotification(
         'Stylecast',
-        'It\'s $currentTemp° today. Wear $clothesList.',
+        'It\'s $currentTemp° now. We recommend $clothesList.',
       );
     } else {
       print('Current weather data is not available');
@@ -152,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   Text(
-                    'Juhan 👋',
+                    '${getFirstName(FirebaseAuth.instance.currentUser!.displayName!)} 👋',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 40,
@@ -1448,6 +1449,13 @@ String getGreeting() {
   }
 }
 
+String getFirstName(String displayName) {
+  // Display name을 공백으로 분리하여 첫 번째 부분만 반환합니다.
+  List<String> nameParts = displayName.split(' ');
+  return nameParts[0];
+}
+
+
 int calculatePosition(
     int temp, int overallMinTemp, int overallMaxTemp, int barWidth) {
   return ((temp - overallMinTemp) *
@@ -1499,6 +1507,8 @@ List<ClothingItem> recommendClothes(int currentTemp, bool isCelsius, int hotTemp
   return result;
 }
 
+
+
 class ClothingItem {
   final String type;
   final String weather;
@@ -1534,4 +1544,5 @@ List<ClothingItem> clothingItems = [
   ClothingItem(
       'extra', 'freezing', 'Gloves', 'assets/images/clothes/winter-gloves.png'),
 ];
+
 
