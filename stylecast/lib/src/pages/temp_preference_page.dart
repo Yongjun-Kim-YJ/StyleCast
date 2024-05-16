@@ -1,10 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:stylecast/src/pages/login.dart';
 
-class SettingsScreen extends StatelessWidget {
+class TempPrefPage extends StatelessWidget {
   final VoidCallback myFunction;
-  SettingsScreen({required this.myFunction});
+  TempPrefPage({required this.myFunction});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +25,7 @@ class SettingsScreen extends StatelessWidget {
                 const SizedBox(
                   width: 320,
                   child: Text(
-                    'Settings',
+                    'Temperature',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 40,
@@ -179,6 +177,7 @@ class SettingsScreen extends StatelessWidget {
                                       ),
                                     ),
                                   ]),
+
                               actions: [
                                 TextButton(
                                   child: const Text("OK"),
@@ -213,7 +212,7 @@ class SettingsScreen extends StatelessWidget {
                     color: Colors.transparent,
                     child: ListTile(
                       title: const Text(
-                        'Log out',
+                        'About Us',
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 22,
@@ -223,15 +222,9 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios),
-                      onTap: () async {
-                        await FirebaseAuth.instance.signOut();
-                        Navigator.of(context)
-                            .popUntil((route) => route.isFirst);
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => LoginScreen()),
-                        );
+                      onTap: () {
+                        print('About Us tapped');
+                        // 원하는 동작 추가
                       },
                     ),
                   ),

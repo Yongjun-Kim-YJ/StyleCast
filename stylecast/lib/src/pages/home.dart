@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'weather_service.dart';
 import 'notification.dart';
-import 'package:stylecast/src/pages/settings_page.dart';
+import 'settings.dart';
+import 'temp_preference_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -59,6 +60,31 @@ class _HomePageState extends State<HomePage> {
     _fetchWeatherData();
   }
 
+  void _showNotification() {
+    if (_currentWeatherData != null) {
+      final currentTemp = (_currentWeatherData!['main']['temp'] as num).toInt();
+      final recommendedClothes = recommendClothes(currentTemp, _isCelsius);
+
+      // Convert list to string with "and" before the last element
+      String clothesList;
+      if (recommendedClothes.length > 1) {
+        clothesList =
+            '${recommendedClothes.sublist(0, recommendedClothes.length - 1).map((item) => item.name).join(', ')} and ${recommendedClothes.last.name}';
+      } else if (recommendedClothes.isNotEmpty) {
+        clothesList = recommendedClothes.first.name;
+      } else {
+        clothesList = 'nothing special';
+      }
+
+      FlutterLocalNotification.showNotification(
+        'Stylecast',
+        'It\'s $currentTemp° today. Wear $clothesList.',
+      );
+    } else {
+      print('Current weather data is not available');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,7 +121,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             Container(
               width: double.infinity,
-              color: Color(0xFF2979FF),
+              color: Color.fromARGB(255, 139, 181, 255),
               padding: const EdgeInsets.all(30.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +163,14 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onTap: () {
-                      _toggleTemperatureUnit();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TempPrefPage(
+                                  myFunction: _toggleTemperatureUnit,
+                                )),
+                      );
+
                       print('Temperature Preference is clicked');
                     },
                   ),
@@ -168,12 +201,14 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onTap: () {
-                      print('Setting is clicked');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => SettingsScreen()),
+                            builder: (context) => SettingsScreen(
+                                  myFunction: _toggleTemperatureUnit,
+                                )),
                       );
+                      print('Settings is clicked');
                     },
                   ),
                   ListTile(
@@ -188,8 +223,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onTap: () {
-                      FlutterLocalNotification
-                          .showNotification(); // Corrected to call the method directly
+                      _showNotification();
                       print('Test Notification is clicked');
                     },
                   ),
@@ -199,9 +233,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _buildWeatherContent(),
+      body: _isLoading ? _buildWeatherContent() : _buildWeatherContent(),
     );
   }
 
