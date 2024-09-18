@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "stylecast",
+            "cwd": "stylecast",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "stylecast (profile mode)",
+            "cwd": "stylecast",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "stylecast (release mode)",
+            "cwd": "stylecast",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "Flutter",
+            "program": "lib/main.dart",
+            "cwd": "stylecast",
+            "request": "launch",
+            "type": "dart"
+        }
+    ]
+}
